@@ -5,7 +5,6 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -82,20 +81,20 @@ type Config struct {
 
 func init() {
 	log.Info("Start Load Config")
-	applicationResources, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	var application string
 	if viperInit == nil {
 
 		if os.Getenv("WS_ENV") != "" {
-			applicationResources = fmt.Sprintf("%s-%s.%s", applicationResources, os.Getenv("WS_ENV"), ext)
+			application = fmt.Sprintf("%s-%s", application, os.Getenv("WS_ENV"))
 		} else {
-			applicationResources += "application.yaml"
+			application += "application"
 		}
 
 		viperInit = viper.New()
-		viperInit.SetConfigType("yaml")
-		viperInit.AddConfigPath("./resource")
+		viperInit.SetConfigType(ext)
+		viperInit.AddConfigPath("/resource")
 
-		viperInit.SetConfigName(applicationResources)
+		viperInit.SetConfigName(application)
 		viperInit.AutomaticEnv()
 		err := viperInit.ReadInConfig()
 
