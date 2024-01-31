@@ -13,14 +13,13 @@ type RedisWrap struct {
 }
 
 type RedisInterface interface {
-	NewRedisWrap() (*RedisWrap, error)
 	Set(ctx context.Context, key string, data interface{}, duration *time.Duration) error
 	Get(ctx context.Context, key string) (interface{}, error)
 	HashSet(ctx context.Context, key string, data map[string]interface{}, duration *time.Duration) error
 	HashGet(ctx context.Context, key string) (map[string]string, error)
 }
 
-func (r RedisWrap) NewRedisWrap() (*RedisWrap, error) {
+func NewRedisWrap() (*RedisWrap, error) {
 	if redisClient == nil {
 		config := GetConfig().Redis
 		redisClient = redis.NewClient(&redis.Options{
