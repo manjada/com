@@ -32,7 +32,10 @@ func (b BaseRepo) AutoMigrate(data interface{}) error {
 }
 
 func (b BaseRepo) Create(data interface{}) error {
-	Info("implement Create")
+	err := b.DbRepo.Create(data).Error
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
