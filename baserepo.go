@@ -14,13 +14,13 @@ func NewBaseRepo() *BaseRepo {
 
 type BaseRepoInterface interface {
 	AutoMigrate(data interface{}) error
-	Create(data interface{}) error
-	First(dest interface{}, conds ...interface{}) *BaseRepo
-	Where(query interface{}, args ...interface{}) *BaseRepo
-	Table(name string) *BaseRepo
-	Raw(sql string, args ...interface{}) *BaseRepo
-	Exec(sql string, args ...interface{}) *BaseRepo
-	Model(value interface{}) *BaseRepo
+	Create(data interface{}) *gorm.DB
+	First(dest interface{}, conds ...interface{}) *gorm.DB
+	Where(query interface{}, args ...interface{}) *gorm.DB
+	Table(name string) *gorm.DB
+	Raw(sql string, args ...interface{}) *gorm.DB
+	Exec(sql string, args ...interface{}) *gorm.DB
+	Model(value interface{}) *gorm.DB
 }
 
 func (b BaseRepo) AutoMigrate(data interface{}) error {
@@ -31,40 +31,30 @@ func (b BaseRepo) AutoMigrate(data interface{}) error {
 	return nil
 }
 
-func (b BaseRepo) Create(data interface{}) error {
-	err := b.DbRepo.Create(data).Error
-	if err != nil {
-		return err
-	}
-	return nil
+func (b BaseRepo) Create(data interface{}) *gorm.DB {
+	return b.DbRepo.Create(data)
 }
 
-func (b *BaseRepo) First(dest interface{}, conds ...interface{}) *BaseRepo {
-	b.DbRepo = b.DbRepo.First(dest, conds...)
-	return b
+func (b *BaseRepo) First(dest interface{}, conds ...interface{}) *gorm.DB {
+	return b.DbRepo.First(dest, conds...)
 }
 
-func (b *BaseRepo) Where(query interface{}, args ...interface{}) *BaseRepo {
-	b.DbRepo = b.DbRepo.Where(query, args...)
-	return b
+func (b *BaseRepo) Where(query interface{}, args ...interface{}) *gorm.DB {
+	return b.DbRepo.Where(query, args...)
 }
 
-func (b *BaseRepo) Model(value interface{}) *BaseRepo {
-	b.DbRepo = b.DbRepo.Model(value)
-	return b
+func (b *BaseRepo) Model(value interface{}) *gorm.DB {
+	return b.DbRepo.Model(value)
 }
 
-func (b *BaseRepo) Table(name string) *BaseRepo {
-	b.DbRepo = b.DbRepo.Table(name)
-	return b
+func (b *BaseRepo) Table(name string) *gorm.DB {
+	return b.DbRepo.Table(name)
 }
 
-func (b *BaseRepo) Raw(sql string, args ...interface{}) *BaseRepo {
-	b.DbRepo = b.DbRepo.Raw(sql, args...)
-	return b
+func (b *BaseRepo) Raw(sql string, args ...interface{}) *gorm.DB {
+	return b.DbRepo.Raw(sql, args...)
 }
 
-func (b *BaseRepo) Exec(sql string, args ...interface{}) *BaseRepo {
-	b.DbRepo = b.DbRepo.Exec(sql, args...)
-	return b
+func (b *BaseRepo) Exec(sql string, args ...interface{}) *gorm.DB {
+	return b.DbRepo.Exec(sql, args...)
 }
