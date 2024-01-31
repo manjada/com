@@ -93,10 +93,16 @@ func init() {
 
 		viperInit = viper.New()
 		viperInit.SetConfigType("yaml")
-		viperInit.AddConfigPath("/resource")
+		viperInit.AddConfigPath("./resource")
 
 		viperInit.SetConfigName(applicationResources)
 		viperInit.AutomaticEnv()
+		err := viperInit.ReadInConfig()
+
+		if err != nil {
+			Error(err)
+		}
+
 		viperInit.OnConfigChange(func(in fsnotify.Event) {
 			Info(fmt.Sprintf("Config file changed: %s", in.Name))
 		})
@@ -111,7 +117,7 @@ func init() {
 			}
 		}
 
-		err := viperInit.Unmarshal(&conf)
+		err = viperInit.Unmarshal(&conf)
 		if err != nil {
 			Panic(err)
 		}
