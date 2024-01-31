@@ -6,7 +6,9 @@ require (
 	github.com/elastic/go-elasticsearch/v8 v8.12.0
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/google/uuid v1.4.0
 	github.com/hashicorp/go-multierror v1.1.1
+	github.com/jinzhu/copier v0.4.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/redis/go-redis/v9 v9.4.0
