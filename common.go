@@ -1,6 +1,7 @@
 package mjd
 
 import (
+	"crypto/rand"
 	"fmt"
 	"github.com/jinzhu/copier"
 	"github.com/manjada/com/dto"
@@ -78,4 +79,19 @@ func copyOption() copier.Option {
 			},
 		},
 	}
+}
+
+func GenerateOTP(length int) (string, error) {
+	buffer := make([]byte, length)
+	_, err := rand.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+
+	otpCharsLength := len(dto.OtpChar)
+	for i := 0; i < length; i++ {
+		buffer[i] = dto.OtpChar[int(buffer[i])%otpCharsLength]
+	}
+	fmt.Println(string(buffer))
+	return string(buffer), nil
 }
