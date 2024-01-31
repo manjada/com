@@ -1,4 +1,4 @@
-module github.com/manjada/lib
+module github.com/manjada/com
 
 go 1.21.3
 
@@ -7,10 +7,9 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.4
-	github.com/pkg/errors v0.9.1
 	github.com/rabbitmq/amqp091-go v1.9.0
+	github.com/redis/go-redis/v9 v9.4.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.18.2
 	gorm.io/driver/postgres v1.5.4
@@ -39,7 +38,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
-	github.com/redis/go-redis/v9 v9.4.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
