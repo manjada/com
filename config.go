@@ -93,7 +93,7 @@ func init() {
 
 		viperInit = viper.New()
 		viperInit.SetConfigType("yaml")
-		viperInit.AddConfigPath("./resource")
+		viperInit.AddConfigPath("/resource")
 
 		viperInit.SetConfigName(applicationResources)
 		viperInit.AutomaticEnv()
@@ -115,6 +115,7 @@ func init() {
 		if err != nil {
 			Panic(err)
 		}
+		Info("Config data ", conf.DbConfig.Host)
 
 	}
 }
