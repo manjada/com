@@ -92,7 +92,7 @@ func init() {
 
 		viperInit = viper.New()
 		viperInit.SetConfigType(ext)
-		viperInit.AddConfigPath("/resource")
+		viperInit.AddConfigPath("./resource")
 
 		viperInit.SetConfigName(application)
 		viperInit.AutomaticEnv()
