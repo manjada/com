@@ -81,15 +81,14 @@ type Config struct {
 
 func init() {
 	log.Info("Start Load Config")
-	var application string
+	application := "application"
 	if viperInit == nil {
 
 		if os.Getenv("WS_ENV") != "" {
 			application = fmt.Sprintf("%s-%s", application, os.Getenv("WS_ENV"))
-		} else {
-			application += "application"
 		}
 
+		Info("Config path => ", application)
 		viperInit = viper.New()
 		viperInit.SetConfigType(ext)
 		viperInit.AddConfigPath("./resource")
