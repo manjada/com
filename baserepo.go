@@ -14,16 +14,16 @@ func NewBaseRepo() *BaseRepo {
 
 type BaseRepoInterface interface {
 	AutoMigrate(data interface{}) error
-	Create(data interface{})
-	First(dest interface{}, conds ...interface{})
-	Where(query interface{}, args ...interface{})
-	Table(name string)
-	Raw(sql string, args ...interface{})
-	Exec(sql string, args ...interface{})
-	Model(value interface{})
-	Updates(data interface{})
-	UpdateColumns(data interface{})
-	UpdateColumn(column string, data interface{})
+	Create(data interface{}) BaseRepo
+	First(dest interface{}, conds ...interface{}) BaseRepo
+	Where(query interface{}, args ...interface{}) BaseRepo
+	Table(name string) BaseRepo
+	Raw(sql string, args ...interface{}) BaseRepo
+	Exec(sql string, args ...interface{}) BaseRepo
+	Model(value interface{}) BaseRepo
+	Updates(data interface{}) BaseRepo
+	UpdateColumns(data interface{}) BaseRepo
+	UpdateColumn(column string, data interface{}) BaseRepo
 }
 
 func (b BaseRepo) AutoMigrate(data interface{}) error {
@@ -34,42 +34,52 @@ func (b BaseRepo) AutoMigrate(data interface{}) error {
 	return nil
 }
 
-func (b BaseRepo) UpdateColumn(column string, data interface{}) {
+func (b BaseRepo) UpdateColumn(column string, data interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.UpdateColumn(column, data)
+	return b
 }
 
-func (b BaseRepo) UpdateColumns(data interface{}) {
+func (b BaseRepo) UpdateColumns(data interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.UpdateColumns(data)
+	return b
 }
 
-func (b BaseRepo) Updates(data interface{}) {
+func (b BaseRepo) Updates(data interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.Updates(data)
+	return b
 }
 
-func (b BaseRepo) Create(data interface{}) {
+func (b BaseRepo) Create(data interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.Create(data)
+	return b
 }
 
-func (b BaseRepo) First(dest interface{}, conds ...interface{}) {
+func (b BaseRepo) First(dest interface{}, conds ...interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.First(dest, conds...)
+	return b
 }
 
-func (b BaseRepo) Where(query interface{}, args ...interface{}) {
+func (b BaseRepo) Where(query interface{}, args ...interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.Where(query, args...)
+	return b
 }
 
-func (b BaseRepo) Model(value interface{}) {
+func (b BaseRepo) Model(value interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.Model(value)
+	return b
 }
 
-func (b BaseRepo) Table(name string) {
+func (b BaseRepo) Table(name string) BaseRepo {
 	b.DbRepo = b.DbRepo.Table(name)
+	return b
 }
 
-func (b BaseRepo) Raw(sql string, args ...interface{}) {
+func (b BaseRepo) Raw(sql string, args ...interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.Raw(sql, args...)
+	return b
 }
 
-func (b BaseRepo) Exec(sql string, args ...interface{}) {
+func (b BaseRepo) Exec(sql string, args ...interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.Exec(sql, args...)
+	return b
 }
