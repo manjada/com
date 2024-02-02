@@ -21,6 +21,9 @@ func (p Postgres) Connect() {
 		}
 
 		Info("Success connect to DB")
+		if config.Debug {
+			db = db.Debug()
+		}
 		Db = db
 	}
 
