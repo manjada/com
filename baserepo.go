@@ -21,6 +21,9 @@ type BaseRepoInterface interface {
 	Raw(sql string, args ...interface{}) *gorm.DB
 	Exec(sql string, args ...interface{}) *gorm.DB
 	Model(value interface{}) *gorm.DB
+	Updates(data interface{}) *gorm.DB
+	UpdateColumns(data interface{}) *gorm.DB
+	UpdateColumn(column string, data interface{}) *gorm.DB
 }
 
 func (b BaseRepo) AutoMigrate(data interface{}) error {
@@ -29,6 +32,18 @@ func (b BaseRepo) AutoMigrate(data interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func (b BaseRepo) UpdateColumn(column string, data interface{}) *gorm.DB {
+	return b.DbRepo.UpdateColumn(column, data)
+}
+
+func (b BaseRepo) UpdateColumns(data interface{}) *gorm.DB {
+	return b.DbRepo.UpdateColumns(data)
+}
+
+func (b BaseRepo) Updates(data interface{}) *gorm.DB {
+	return b.DbRepo.Updates(data)
 }
 
 func (b BaseRepo) Create(data interface{}) *gorm.DB {
