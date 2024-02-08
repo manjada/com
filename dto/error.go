@@ -19,6 +19,8 @@ var ERR_PARSE_JSON = errCodeUser(1004, "Invalid json provided")
 var ERR_VALIDATE_REQUIRED = errCodeUser(1005, "Field Required")
 var ERR_USER_NOT_FOUND = errCodeUser(1005, "user or password is wrong")
 var ERR_SYSTEM = errCodeUser(1006, "An error occurred in the system, please try again or contact the administrator")
+var ERR_OTP_MAX = errCodeUser(1007, "Percobaan otp sudah lebih dari batas maksimal silahkan request otp kembali")
+var ERR_OTP_INVALID = errCodeUser(1007, "Otp tidak sesuai")
 
 type ErrorCustom struct {
 	CodeError int
