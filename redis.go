@@ -18,6 +18,7 @@ type RedisInterface interface {
 	Get(ctx context.Context, key string) (string, error)
 	HashSet(ctx context.Context, key string, data map[string]interface{}, duration *time.Duration) error
 	HashGet(ctx context.Context, key string) (map[string]string, error)
+	Delete(ctx context.Context, key string) error
 }
 
 func NewRedisWrap() (*RedisWrap, error) {
@@ -33,6 +34,14 @@ func NewRedisWrap() (*RedisWrap, error) {
 		return nil, errors.New("Redis can't connected ")
 	}
 	return &RedisWrap{}, nil
+}
+
+func (r RedisWrap) Delete(ctx context.Context, key string) error {
+	err := redisClient.Del(ctx, key).Err()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r RedisWrap) Set(ctx context.Context, key string, data interface{}, duration *time.Duration) error {
