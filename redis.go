@@ -2,7 +2,6 @@ package mjd
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"github.com/redis/go-redis/v9"
 	"time"
@@ -49,11 +48,8 @@ func (r RedisWrap) Set(ctx context.Context, key string, data interface{}, durati
 	if duration == nil {
 		*duration = 0
 	}
-	dataByte, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-	err = redisClient.Set(ctx, key, string(dataByte), *duration).Err()
+
+	err := redisClient.Set(ctx, key, data, *duration).Err()
 	if err != nil {
 		return err
 	}
@@ -61,7 +57,7 @@ func (r RedisWrap) Set(ctx context.Context, key string, data interface{}, durati
 }
 
 func (r RedisWrap) GetString(ctx context.Context, key string) string {
-	val := redisClient.Get(ctx, key).String()
+	val := redisClient.Get(ctx, key).Val()
 	return val
 }
 
