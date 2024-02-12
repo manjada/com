@@ -6,6 +6,6 @@ const (
 	STATUS_USER_VERIFICATION = "Verification"
 	STATUS_USER_ACTIVE       = "Active"
 
-	OTP_VERIFICATION_SUCCESS = "Registrasi Sukses silahkan login kembali"
+	OTP_REGISTRATION_SUCCESS = "Registrasi Sukses silahkan login kembali"
 	OTP_VERIFICATION_MAX     = 3
 )
