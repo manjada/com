@@ -15,7 +15,7 @@ type RedisWrap struct {
 
 type RedisInterface interface {
 	Set(ctx context.Context, key string, data interface{}, duration *time.Duration) error
-	GetString(ctx context.Context, key string) (string, error)
+	GetString(ctx context.Context, key string) string
 	HashSet(ctx context.Context, key string, data map[string]interface{}, duration *time.Duration) error
 	HashGet(ctx context.Context, key string) (map[string]string, error)
 	Delete(ctx context.Context, key string) error
@@ -60,12 +60,9 @@ func (r RedisWrap) Set(ctx context.Context, key string, data interface{}, durati
 	return nil
 }
 
-func (r RedisWrap) GetString(ctx context.Context, key string) (string, error) {
-	val, err := redisClient.Get(ctx, key).Result()
-	if err != nil {
-		return "", err
-	}
-	return val, nil
+func (r RedisWrap) GetString(ctx context.Context, key string) string {
+	val := redisClient.Get(ctx, key).String()
+	return val
 }
 
 func (r RedisWrap) GetInt(ctx context.Context, key string) (int, error) {
