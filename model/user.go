@@ -7,4 +7,5 @@ type User struct {
 	Password string `gorm:"not null; type:varchar(255);"`
 	Status   string `gorm:"type:varchar(20); index:idx_user_status;"`
 	TryLogin *int64
+	Roles     []Role    `gorm:"many2many:user_role;" json:"roles" form:"roles"`
 }
