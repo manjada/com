@@ -4,10 +4,11 @@ import (
 	"context"
 	"github.com/golang-jwt/jwt"
 	"github.com/manjada/com/dto"
+	"github.com/manjada/com/model"
 	"time"
 )
 
-func CreateToken(userId string) (*dto.TokenDetails, error) {
+func CreateToken(user model.User) (*dto.TokenDetails, error) {
 	td := new(dto.TokenDetails)
 	td.CreateTokenDetails()
 	var err error
@@ -15,7 +16,11 @@ func CreateToken(userId string) (*dto.TokenDetails, error) {
 	atClaims := &dto.CustomClaims{}
 	atClaims.Authorized = true
 	atClaims.AccessUuid = td.AccessUuid
-	atClaims.UserId = userId
+	atClaims.UserId = user.Id
+	for _, role := range user.Roles {
+		atClaims.Roles = append(atClaims.Roles, role.Code)
+	}
+
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 
@@ -27,7 +32,8 @@ func CreateToken(userId string) (*dto.TokenDetails, error) {
 
 	rtClaims := dto.CustomClaims{}
 	rtClaims.RefreshUuid = td.RefreshUuid
-	rtClaims.UserId = userId
+	rtClaims.UserId = user.Id
+
 	rtClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.RefreshExpire}
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
 

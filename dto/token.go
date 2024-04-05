@@ -16,10 +16,11 @@ type TokenDetails struct {
 }
 
 type CustomClaims struct {
-	Authorized  bool   `json:"authorized"`
-	AccessUuid  string `json:"accessUuid"`
-	RefreshUuid string `json:"refreshUuid"`
-	UserId      string `json:"userId"`
+	Authorized  bool     `json:"authorized"`
+	AccessUuid  string   `json:"accessUuid"`
+	RefreshUuid string   `json:"refreshUuid"`
+	UserId      string   `json:"userId"`
+	Roles       []string `json:"roles"`
 	jwt.StandardClaims
 }
 

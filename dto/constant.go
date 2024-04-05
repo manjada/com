@@ -8,4 +8,7 @@ const (
 
 	OTP_REGISTRATION_SUCCESS = "Registrasi Sukses silahkan login kembali"
 	OTP_VERIFICATION_MAX     = 3
+
+	ROLES_CODE_CLIENT = "CLT"
+	ROLES_CODE_ADMIN = "ADM"
 )
