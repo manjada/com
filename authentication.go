@@ -4,11 +4,10 @@ import (
 	"context"
 	"github.com/golang-jwt/jwt"
 	"github.com/manjada/com/dto"
-	"github.com/manjada/com/model"
 	"time"
 )
 
-func CreateToken(user model.User) (*dto.TokenDetails, error) {
+func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	td := new(dto.TokenDetails)
 	td.CreateTokenDetails()
 	var err error
@@ -17,14 +16,12 @@ func CreateToken(user model.User) (*dto.TokenDetails, error) {
 	atClaims.Authorized = true
 	atClaims.AccessUuid = td.AccessUuid
 	atClaims.UserId = user.Id
-	for _, role := range user.Roles {
-		atClaims.Roles = append(atClaims.Roles, role.Code)
-	}
+	atClaims.Roles = user.Roles
 
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 
-	accessKey := GetConfig().AppJwt.AccessSecret
+	accessKey := "carwash_1.0#"
 	td.AccessToken, err = at.SignedString([]byte(accessKey))
 	if err != nil {
 		return nil, err
@@ -37,7 +34,7 @@ func CreateToken(user model.User) (*dto.TokenDetails, error) {
 	rtClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.RefreshExpire}
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
 
-	refreshKey := GetConfig().AppJwt.RefreshSecret
+	refreshKey := "refresh_carwash_1.0#"
 	td.RefreshToken, err = rt.SignedString([]byte(refreshKey))
 	if err != nil {
 		return nil, err

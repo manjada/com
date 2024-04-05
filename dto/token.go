@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+type UserToken struct {
+	Id    string `json:"id"`
+	Name  string `json:"name"`
+	Roles string `json:"roles"`
+}
 type TokenDetails struct {
 	AccessToken   string
 	RefreshToken  string
@@ -20,7 +25,7 @@ type CustomClaims struct {
 	AccessUuid  string   `json:"accessUuid"`
 	RefreshUuid string   `json:"refreshUuid"`
 	UserId      string   `json:"userId"`
-	Roles       []string `json:"roles"`
+	Roles       string `json:"roles"`
 	jwt.StandardClaims
 }
 
