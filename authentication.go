@@ -21,7 +21,7 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 
-	accessKey := "carwash_1.0#"
+	accessKey := GetConfig().AppJwt.AccessSecret
 	td.AccessToken, err = at.SignedString([]byte(accessKey))
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	rtClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.RefreshExpire}
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
 
-	refreshKey := "refresh_carwash_1.0#"
+	refreshKey := GetConfig().AppJwt.RefreshSecret
 	td.RefreshToken, err = rt.SignedString([]byte(refreshKey))
 	if err != nil {
 		return nil, err
