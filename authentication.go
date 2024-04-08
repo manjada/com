@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"github.com/labstack/echo-jwt/v4"
 )
 
 const (
@@ -71,12 +72,11 @@ func CreateAuth(userId string, td *dto.TokenDetails) error {
 	return err
 }
 
-func JwtConfig() middleware.JWTConfig {
+func JwtConfig() echojwt.Config {
 	secretKey := GetConfig().AppJwt.AccessSecret
-	config := middleware.JWTConfig{
-		Claims:     &dto.CustomClaims{},
+	config := echojwt.Config{
 		SigningKey: []byte(secretKey),
-		ParseTokenFunc: func(auth string, c echo.Context) (interface{}, error) {
+		ParseTokenFunc: func( c echo.Context, auth string,) (interface{}, error) {
 			err := tokenValid(c.Request())
 			if err != nil {
 				return nil, err
