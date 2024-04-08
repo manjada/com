@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+const (
+	CSRF_KEY = "csrf_token"
+)
+
 func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	td := new(dto.TokenDetails)
 	td.CreateTokenDetails()
@@ -90,7 +94,7 @@ func tokenValid(r *http.Request) error {
 		return err
 	}
 
-	accessDetail, err := ExtractTokenMetadata(r)
+	accessDetail, err := extractTokenMetadata(r)
 	if err != nil {
 		return err
 	}
@@ -143,7 +147,7 @@ func extractToken(r *http.Request) string {
 	return ""
 }
 
-func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
+func extractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 	var err error
 
 	token, err := verifyToken(r)
@@ -159,4 +163,18 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 		}, nil
 	}
 	return nil, err
+}
+
+func CorsConfig() middleware.CORSConfig {
+	_ = middleware.CSRFConfig{
+		TokenLookup: "header:" + echo.HeaderXCSRFToken,
+		ContextKey:  CSRF_KEY,
+	}
+	corsConfig := middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodDelete, http.MethodPost},
+		AllowHeaders: []string{echo.HeaderAccessControlAllowHeaders, echo.HeaderOrigin, echo.HeaderAccept, echo.HeaderContentType, echo.HeaderAccessControlRequestMethod,
+			echo.HeaderAccessControlRequestHeaders, echo.HeaderAuthorization, echo.HeaderAccessControlAllowMethods, echo.HeaderAccessControlAllowOrigin},
+	}
+	return corsConfig
 }
