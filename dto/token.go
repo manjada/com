@@ -35,3 +35,8 @@ func (receiver *TokenDetails) CreateTokenDetails() {
 	receiver.RefreshExpire = time.Now().Add(time.Hour * 24 * 7).Unix()
 	receiver.RefreshUuid = uuid.New().String()
 }
+
+type AccessDetail struct {
+	AccessUuid string
+	UserId     string
+}
