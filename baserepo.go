@@ -26,6 +26,7 @@ type BaseRepoInterface interface {
 	UpdateColumn(column string, data interface{}) BaseRepo
 	Omit(tableName string) BaseRepo
 	Find(dest interface{}, conds ...interface{}) BaseRepo
+	Preload(name string) BaseRepo
 }
 
 func (b BaseRepo) AutoMigrate(data interface{}) error {
@@ -83,6 +84,11 @@ func (b BaseRepo) Model(value interface{}) BaseRepo {
 
 func (b BaseRepo) Table(name string) BaseRepo {
 	b.DbRepo = b.DbRepo.Table(name)
+	return b
+}
+
+func (b BaseRepo) Preload(name string) BaseRepo {
+	b.DbRepo = b.DbRepo.Preload(name)
 	return b
 }
 
