@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt"
+	"github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/manjada/com/dto"
 	"net/http"
 	"strings"
 	"time"
-	"github.com/labstack/echo-jwt/v4"
 )
 
 const (
@@ -76,7 +76,7 @@ func JwtConfig() echojwt.Config {
 	secretKey := GetConfig().AppJwt.AccessSecret
 	config := echojwt.Config{
 		SigningKey: []byte(secretKey),
-		ParseTokenFunc: func( c echo.Context, auth string,) (interface{}, error) {
+		ParseTokenFunc: func(c echo.Context, auth string) (interface{}, error) {
 			err := tokenValid(c.Request())
 			if err != nil {
 				return nil, err
@@ -94,7 +94,7 @@ func tokenValid(r *http.Request) error {
 		return err
 	}
 
-	accessDetail, err := extractTokenMetadata(r)
+	accessDetail, err := ExtractTokenMetadata(r)
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func extractToken(r *http.Request) string {
 	return ""
 }
 
-func extractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
+func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 	var err error
 
 	token, err := verifyToken(r)
@@ -160,6 +160,7 @@ func extractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 		return &dto.AccessDetail{
 			AccessUuid: claims["accessUuid"].(string),
 			UserId:     claims["userId"].(string),
+			Roles:      claims["roles"].(string),
 		}, nil
 	}
 	return nil, err

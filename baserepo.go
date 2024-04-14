@@ -24,6 +24,8 @@ type BaseRepoInterface interface {
 	Updates(data interface{}) BaseRepo
 	UpdateColumns(data interface{}) BaseRepo
 	UpdateColumn(column string, data interface{}) BaseRepo
+	Omit(tableName string) BaseRepo
+	Find(dest interface{}, conds ...interface{}) BaseRepo
 }
 
 func (b BaseRepo) AutoMigrate(data interface{}) error {
@@ -49,6 +51,11 @@ func (b BaseRepo) Updates(data interface{}) BaseRepo {
 	return b
 }
 
+func (b BaseRepo) Omit(tableName string) BaseRepo {
+	b.DbRepo = b.DbRepo.Omit(tableName)
+	return b
+}
+
 func (b BaseRepo) Create(data interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.Create(data)
 	return b
@@ -56,6 +63,11 @@ func (b BaseRepo) Create(data interface{}) BaseRepo {
 
 func (b BaseRepo) First(dest interface{}, conds ...interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.First(dest, conds...)
+	return b
+}
+
+func (b BaseRepo) Find(dest interface{}, conds ...interface{}) BaseRepo {
+	b.DbRepo = b.DbRepo.Find(dest, conds...)
 	return b
 }
 
