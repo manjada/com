@@ -27,6 +27,7 @@ type BaseRepoInterface interface {
 	Omit(tableName string) BaseRepo
 	Find(dest interface{}, conds ...interface{}) BaseRepo
 	Preload(name string) BaseRepo
+	Scan(data interface{}) BaseRepo
 }
 
 func (b BaseRepo) AutoMigrate(data interface{}) error {
@@ -99,5 +100,10 @@ func (b BaseRepo) Raw(sql string, args ...interface{}) BaseRepo {
 
 func (b BaseRepo) Exec(sql string, args ...interface{}) BaseRepo {
 	b.DbRepo = b.DbRepo.Exec(sql, args...)
+	return b
+}
+
+func (b BaseRepo) Scan(data interface{}) BaseRepo {
+	b.DbRepo = b.DbRepo.Scan(data)
 	return b
 }

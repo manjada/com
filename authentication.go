@@ -27,6 +27,7 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	atClaims.AccessUuid = td.AccessUuid
 	atClaims.UserId = user.Id
 	atClaims.Roles = user.Roles
+	atClaims.Menus = user.Menus
 
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
@@ -40,6 +41,8 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	rtClaims := dto.CustomClaims{}
 	rtClaims.RefreshUuid = td.RefreshUuid
 	rtClaims.UserId = user.Id
+	rtClaims.Roles = user.Roles
+	rtClaims.Menus = user.Menus
 
 	rtClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.RefreshExpire}
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
