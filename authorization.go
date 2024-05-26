@@ -9,33 +9,43 @@ import (
 func VerifyPermission(r *http.Request) error {
 	tokenData, _ := ExtractTokenMetadata(r)
 	roles := strings.Split(tokenData.Roles, ",")
-	var result []struct{
-		Id       string
-		ParentId string
-		Name     string
-		Path     string
-		Icon     string
-		RoleId   string
+	var result []struct {
+		ParentId   string
+		Code       string
+		Path       string
+		Icon       string
+		Label      string
+		Sequence   int
+		IsConfig   bool
+		Selectable bool
 	}
 	db := BaseRepo{DbRepo: Db}
 	db = db.Raw(`WITH RECURSIVE childMenu AS (
     SELECT
-        id,
-        parent_id,
-        name,
-	    path,
-        icon
+			id,
+			parent_id,
+			code,
+			path,
+			icon,
+			is_config,
+			selectable,
+			sequence,
+			label
     FROM
         menus
     WHERE
             id IN (?)
     UNION
     SELECT
-        e.id,
-        e.parent_id,
-        e.name,
-        e.path,
-        e.icon
+			e.id,
+			e.parent_id,
+			e.code,
+			e.path,
+			e.icon,
+			e.is_config,
+			e.selectable,
+			e.sequence,
+			e.label
     FROM
         menus e
             INNER JOIN childMenu s ON s.id = e.parent_id
@@ -54,7 +64,7 @@ SELECT * FROM childMenu`, tokenData.Menus).Scan(&result)
 				db3.Count(&count)
 				if count > 1 {
 					return nil
-				}else{
+				} else {
 					return fmt.Errorf("Access is not allowed")
 				}
 			}
