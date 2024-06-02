@@ -10,4 +10,5 @@ type Menu struct {
 	Sequence   int    `gorm:"type:int"`
 	IsConfig   bool   `gorm:"type:bool"`
 	Selectable bool   `gorm:"type:bool"`
+	RouterLink string `gorm:"type:varchar(255)"`
 }

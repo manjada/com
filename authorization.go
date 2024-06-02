@@ -10,6 +10,7 @@ func VerifyPermission(r *http.Request) error {
 	tokenData, _ := ExtractTokenMetadata(r)
 	roles := strings.Split(tokenData.Roles, ",")
 	var result []struct {
+		Id         string
 		ParentId   string
 		Code       string
 		Path       string
@@ -30,7 +31,8 @@ func VerifyPermission(r *http.Request) error {
 			is_config,
 			selectable,
 			sequence,
-			label
+			label,
+			router_link
     FROM
         menus
     WHERE
@@ -45,7 +47,8 @@ func VerifyPermission(r *http.Request) error {
 			e.is_config,
 			e.selectable,
 			e.sequence,
-			e.label
+			e.label,
+			e.router_link
     FROM
         menus e
             INNER JOIN childMenu s ON s.id = e.parent_id
