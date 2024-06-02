@@ -19,6 +19,7 @@ func VerifyPermission(r *http.Request) error {
 		Sequence   int
 		IsConfig   bool
 		Selectable bool
+		RouterLink string
 	}
 	db := BaseRepo{DbRepo: Db}
 	db = db.Raw(`WITH RECURSIVE childMenu AS (
