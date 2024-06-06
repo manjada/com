@@ -11,5 +11,4 @@ type Menu struct {
 	IsConfig   bool   `gorm:"type:bool"`
 	Selectable bool   `gorm:"type:bool"`
 	RouterLink string `gorm:"type:varchar(255)"`
-	Child      *Menu
 }
