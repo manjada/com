@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/manjada/com/dto"
+	"github.com/manjada/com/memory"
 	"net/http"
 	"strings"
 	"time"
@@ -60,7 +61,7 @@ func CreateAuth(userId string, td *dto.TokenDetails) error {
 	at := time.Unix(td.AccessExpire, 0)
 	rt := time.Unix(td.RefreshExpire, 0)
 	now := time.Now()
-	redis, err := NewRedisWrap()
+	redis, err := memory.NewRedisWrap()
 	atTime := at.Sub(now)
 	rtTime := rt.Sub(now)
 	err = redis.Set(context.Background(), td.AccessUuid, userId, &atTime)
@@ -115,7 +116,7 @@ func tokenValid(r *http.Request) error {
 
 func fetchAuth(authD *dto.AccessDetail) (string, error) {
 	var err error
-	redis, err := NewRedisWrap()
+	redis, err := memory.NewRedisWrap()
 	if err != nil {
 		return "", err
 	}

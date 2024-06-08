@@ -29,6 +29,7 @@ type BaseRepoInterface interface {
 	Preload(name string) BaseRepo
 	Scan(data interface{}) BaseRepo
 	Delete(data interface{}) BaseRepo
+	Join(query string, args ...interface{}) BaseRepo
 }
 
 func (b BaseRepo) AutoMigrate(data interface{}) error {
@@ -37,6 +38,11 @@ func (b BaseRepo) AutoMigrate(data interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func (b BaseRepo) Join(query string, args ...interface{}) BaseRepo {
+	b.DbRepo = b.DbRepo.Joins(query, args)
+	return b
 }
 
 func (b BaseRepo) UpdateColumn(column string, data interface{}) BaseRepo {

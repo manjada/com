@@ -1,8 +1,9 @@
-package mjd
+package memory
 
 import (
 	"context"
 	"errors"
+	"github.com/manjada/com"
 	"github.com/redis/go-redis/v9"
 	"time"
 )
@@ -23,7 +24,7 @@ type RedisInterface interface {
 
 func NewRedisWrap() (*RedisWrap, error) {
 	if redisClient == nil {
-		config := GetConfig().Redis
+		config := mjd.GetConfig().Redis
 		redisClient = redis.NewClient(&redis.Options{
 			Addr:     config.Address,
 			Password: config.Pass,  // no password set
@@ -73,7 +74,7 @@ func (r RedisWrap) HashSet(ctx context.Context, key string, data map[string]inte
 	for k, v := range data {
 		err := redisClient.HSet(ctx, key, k, v).Err()
 		if err != nil {
-			Error(err)
+			mjd.Error(err)
 			return err
 		}
 	}
