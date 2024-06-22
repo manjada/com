@@ -1,6 +1,8 @@
 package mjd
 
 import (
+	config2 "github.com/manjada/com/config"
+	"github.com/manjada/com/log"
 	"gorm.io/gorm"
 )
 
@@ -11,14 +13,14 @@ type DbConfig interface {
 }
 
 func init() {
-	Info("Start Connecting to DB")
+	log.Info("Start Connecting to DB")
 	var dbCon DbConfig
-	config := GetConfig()
+	config := config2.GetConfig()
 	switch config.DbConfig.Type {
 	case "postgresql":
 		dbCon = Postgres{}
 	default:
-		log.Panic("Database type not found, please define in properties")
+		log.log.Panic("Database type not found, please define in properties")
 	}
 	dbCon.Connect()
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/jinzhu/copier"
 	"github.com/manjada/com/dto"
+	"github.com/manjada/com/log"
 	"time"
 )
 
@@ -40,7 +41,7 @@ func copyOption() copier.Option {
 
 					if !ok {
 						err := fmt.Errorf("src type not matching")
-						Error(err)
+						log.Error(err)
 						return nil, err
 					}
 
@@ -55,7 +56,7 @@ func copyOption() copier.Option {
 
 					if !ok {
 						err := fmt.Errorf("src type not matching")
-						Error(err)
+						log.Error(err)
 						return nil, err
 					}
 
@@ -70,7 +71,7 @@ func copyOption() copier.Option {
 
 					if !ok {
 						err := fmt.Errorf("src type not matching")
-						Error(err)
+						log.Error(err)
 						return nil, err
 					}
 

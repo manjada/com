@@ -8,6 +8,8 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/index"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
+	config2 "github.com/manjada/com/config"
+	"github.com/manjada/com/log"
 	"strings"
 )
 
@@ -28,14 +30,14 @@ type Elastic struct {
 func NewElastic() (*Elastic, error) {
 	var err error
 	if client == nil {
-		config := GetConfig().NoSqlConfig
+		config := config2.GetConfig().NoSqlConfig
 		var address []string
 		address = strings.Split(config.Host, ",")
 		client, err = elasticsearch.NewTypedClient(elasticsearch.Config{Addresses: address, Username: config.User, Password: config.Pass})
 		if err != nil {
 			return &Elastic{}, err
 		}
-		Info("ES initialized...")
+		log.Info("ES initialized...")
 	}
 
 	return &Elastic{}, err
@@ -56,7 +58,7 @@ func (e *Elastic) GetByDocId(documentId string) (*get.Response, error) {
 	// Build the request body.
 	res, err := client.Get(e.Index, "121212").Do(context.Background())
 	if err != nil {
-		Error(err)
+		log.Error(err)
 		return nil, err
 	}
 	return res, err

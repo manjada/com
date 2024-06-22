@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	config2 "github.com/manjada/com/config"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"time"
 )
@@ -125,7 +126,7 @@ func (r *PubSubRabbitMq) Send(data PubSubData) error {
 }
 
 func NewRabbitMq() (*PubSubRabbitMq, error) {
-	config := GetConfig().Message
+	config := config2.GetConfig().Message
 	conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s/", config.User, config.Pass, config.Host))
 	if err != nil {
 		return nil, err

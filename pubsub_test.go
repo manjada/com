@@ -2,6 +2,7 @@ package mjd
 
 import (
 	"encoding/json"
+	"github.com/manjada/com/log"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"testing"
 )
@@ -66,7 +67,7 @@ func TestPubSubRabbitMq_Receive(t *testing.T) {
 				m := Data{}
 				err := json.Unmarshal(data.Body, &m)
 				if err != nil {
-					Error(err)
+					log.Error(err)
 				}
 				data.Ack(false)
 			}

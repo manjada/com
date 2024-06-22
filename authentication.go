@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/manjada/com/config"
 	"github.com/manjada/com/dto"
 	"github.com/manjada/com/memory"
 	"net/http"
@@ -33,7 +34,7 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 
-	accessKey := GetConfig().AppJwt.AccessSecret
+	accessKey := config.GetConfig().AppJwt.AccessSecret
 	td.AccessToken, err = at.SignedString([]byte(accessKey))
 	if err != nil {
 		return nil, err
@@ -48,7 +49,7 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	rtClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.RefreshExpire}
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
 
-	refreshKey := GetConfig().AppJwt.RefreshSecret
+	refreshKey := config.GetConfig().AppJwt.RefreshSecret
 	td.RefreshToken, err = rt.SignedString([]byte(refreshKey))
 	if err != nil {
 		return nil, err
@@ -77,7 +78,7 @@ func CreateAuth(userId string, td *dto.TokenDetails) error {
 }
 
 func JwtConfig() echojwt.Config {
-	secretKey := GetConfig().AppJwt.AccessSecret
+	secretKey := config.GetConfig().AppJwt.AccessSecret
 	config := echojwt.Config{
 		SigningKey: []byte(secretKey),
 		ParseTokenFunc: func(c echo.Context, auth string) (interface{}, error) {
@@ -133,7 +134,7 @@ func verifyToken(r *http.Request) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		accessSecret := GetConfig().AppJwt.AccessSecret
+		accessSecret := config.GetConfig().AppJwt.AccessSecret
 		return []byte(accessSecret), err
 	})
 	if err != nil {

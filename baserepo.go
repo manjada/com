@@ -1,6 +1,7 @@
 package mjd
 
 import (
+	"github.com/manjada/com/log"
 	"gorm.io/gorm"
 )
 
@@ -34,7 +35,7 @@ type BaseRepoInterface interface {
 
 func (b BaseRepo) AutoMigrate(data interface{}) error {
 	if err := b.DbRepo.AutoMigrate(data); err != nil {
-		Error(err)
+		log.Error(err)
 		return err
 	}
 	return nil

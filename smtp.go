@@ -1,6 +1,7 @@
 package mjd
 
 import (
+	config2 "github.com/manjada/com/config"
 	"gopkg.in/gomail.v2"
 )
 
@@ -21,7 +22,7 @@ type MailInterface interface {
 
 func NewSmtpDialer() *Mail {
 	if dialer == nil {
-		config := GetConfig()
+		config := config2.GetConfig()
 		dialer = gomail.NewDialer(
 			config.Smtp.Host, config.Smtp.Port, config.Smtp.User, config.Smtp.Password)
 	}

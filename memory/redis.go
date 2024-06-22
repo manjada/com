@@ -3,7 +3,8 @@ package memory
 import (
 	"context"
 	"errors"
-	"github.com/manjada/com"
+	config2 "github.com/manjada/com/config"
+	mjd "github.com/manjada/com/log"
 	"github.com/redis/go-redis/v9"
 	"time"
 )
@@ -24,7 +25,7 @@ type RedisInterface interface {
 
 func NewRedisWrap() (*RedisWrap, error) {
 	if redisClient == nil {
-		config := mjd.GetConfig().Redis
+		config := config2.GetConfig().Redis
 		redisClient = redis.NewClient(&redis.Options{
 			Addr:     config.Address,
 			Password: config.Pass,  // no password set
