@@ -2,6 +2,7 @@ package mjd
 
 import (
 	"fmt"
+	"github.com/manjada/com/db/repo"
 	"net/http"
 	"strings"
 )
@@ -21,7 +22,7 @@ func VerifyPermission(r *http.Request) error {
 		Selectable bool
 		RouterLink string
 	}
-	db := BaseRepo{DbRepo: Db}
+	db := repo.BaseRepoGorm{DbRepo: Db}
 	db = db.Raw(`WITH RECURSIVE childMenu AS (
     SELECT
 			id,
@@ -62,7 +63,7 @@ SELECT * FROM childMenu`, tokenData.Menus).Scan(&result)
 	for _, menuId := range tokenData.Menus {
 		for _, menu := range result {
 			if r.URL.Path == menu.Path {
-				db2 := BaseRepo{DbRepo: Db}
+				db2 := repo.BaseRepoGorm{DbRepo: Db}
 				db3 := db2.Where(`role_id IN ? and menu_id = ?`, roles, menuId).DbRepo
 				var count int64
 				db3.Count(&count)
