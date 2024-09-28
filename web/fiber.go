@@ -29,3 +29,8 @@ func (f *Fiber) POST(path string, handler func(c Context) error) {
 		return handler(&FiberCtx{c})
 	})
 }
+
+func NewFiber() Web {
+	f := fiber.New()
+	return &Fiber{f}
+}
