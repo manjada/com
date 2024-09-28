@@ -1,6 +1,7 @@
 package web
 
 type Web interface {
+	Start(addr string) error
 	GET(path string, handler func(c Context) error)
 	POST(path string, handler func(c Context) error)
 }

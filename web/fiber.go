@@ -34,3 +34,7 @@ func NewFiber() Web {
 	f := fiber.New()
 	return &Fiber{f}
 }
+
+func (f *Fiber) Start(addr string) error {
+	return f.App.Listen(addr)
+}
