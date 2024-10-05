@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	config2 "github.com/manjada/com/config"
-	mjd "github.com/manjada/com/log"
 	"github.com/redis/go-redis/v9"
 	"time"
 )
@@ -75,7 +74,7 @@ func (r RedisWrap) HashSet(ctx context.Context, key string, data map[string]inte
 	for k, v := range data {
 		err := redisClient.HSet(ctx, key, k, v).Err()
 		if err != nil {
-			mjd.Error(err)
+			config2.Error(err)
 			return err
 		}
 	}

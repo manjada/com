@@ -1,8 +1,7 @@
-package log
+package config
 
 import (
 	"fmt"
-	"github.com/manjada/com/config"
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
@@ -24,9 +23,9 @@ func init() {
 	var logPath string
 	//get operating system
 	if runtime.GOOS == "windows" {
-		logPath = config.GetConfig().LogFile.PathWindows
+		logPath = GetConfig().LogFile.PathWindows
 	} else {
-		logPath = config.GetConfig().LogFile.PathUnix
+		logPath = GetConfig().LogFile.PathUnix
 	}
 
 	file, err := os.OpenFile(fmt.Sprintf(logPath+"logger.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -42,7 +41,7 @@ func init() {
 	log.SetFormatter(&logrus.JSONFormatter{})
 
 	// Only log the Info severity or above.
-	logLevel, err := logrus.ParseLevel(config.GetConfig().LogFile.Level)
+	logLevel, err := logrus.ParseLevel(GetConfig().LogFile.Level)
 	if err != nil {
 		log.Error(err)
 	}

@@ -2,7 +2,7 @@ package pubsub
 
 import (
 	"encoding/json"
-	"github.com/manjada/com/log"
+	"github.com/manjada/com/config"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"testing"
 )
@@ -67,7 +67,7 @@ func TestPubSubRabbitMq_Receive(t *testing.T) {
 				m := Data{}
 				err := json.Unmarshal(data.Body, &m)
 				if err != nil {
-					log.Error(err)
+					config.Error(err)
 				}
 				data.Ack(false)
 			}

@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
-	"github.com/manjada/com/log"
 	"github.com/spf13/viper"
 	"os"
 	"strings"
@@ -81,7 +80,7 @@ type Config struct {
 }
 
 func init() {
-	log.Info("Start Load Config")
+	Info("Start Load Config")
 	application := "application"
 	if viperInit == nil {
 
@@ -89,7 +88,7 @@ func init() {
 			application = fmt.Sprintf("%s-%s", application, os.Getenv("WS_ENV"))
 		}
 
-		log.Info("Config path => ", application)
+		Info("Config path => ", application)
 		viperInit = viper.New()
 		viperInit.SetConfigType(ext)
 		viperInit.AddConfigPath("./resource")
@@ -99,16 +98,16 @@ func init() {
 		err := viperInit.ReadInConfig()
 
 		if err != nil {
-			log.Error(err)
+			Error(err)
 		}
 
 		viperInit.OnConfigChange(func(in fsnotify.Event) {
-			log.Info(fmt.Sprintf("Config file changed: %s", in.Name))
+			Info(fmt.Sprintf("Config file changed: %s", in.Name))
 		})
 		viperInit.WatchConfig()
 
-		log.Info("Config loaded successfully...")
-		log.Info("Getting environment variables...")
+		Info("Config loaded successfully...")
+		Info("Getting environment variables...")
 		for _, k := range viperInit.AllKeys() {
 			value := viperInit.GetString(k)
 			if strings.HasPrefix(value, "${") && strings.HasSuffix(value, "}") {
@@ -118,9 +117,9 @@ func init() {
 
 		err = viperInit.Unmarshal(&conf)
 		if err != nil {
-			log.Panic(err)
+			Panic(err)
 		}
-		log.Info("Config data ", conf.DbConfig.Host)
+		Info("Config data ", conf.DbConfig.Host)
 
 	}
 }
@@ -128,7 +127,7 @@ func init() {
 func getEnvOrPanic(env string) string {
 	res := os.Getenv(env)
 	if len(res) == 0 {
-		log.Panic(fmt.Errorf("Mandatory env variable not found:" + env))
+		Panic(fmt.Errorf("Mandatory env variable not found:" + env))
 	}
 	return res
 }

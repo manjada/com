@@ -1,8 +1,8 @@
 package repo
 
 import (
+	"github.com/manjada/com/config"
 	"github.com/manjada/com/db"
-	"github.com/manjada/com/log"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +16,7 @@ func NewBaseRepo(db db.DBConnector) BaseRepoGorm {
 
 func (b BaseRepoGorm) AutoMigrate(data interface{}) error {
 	if err := b.DbRepo.AutoMigrate(data); err != nil {
-		log.Error(err)
+		config.Error(err)
 		return err
 	}
 	return nil

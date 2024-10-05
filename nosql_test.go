@@ -3,7 +3,7 @@ package mjd
 import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/get"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
-	"github.com/manjada/com/log"
+	"github.com/manjada/com/config"
 	"reflect"
 	"testing"
 )
@@ -37,7 +37,7 @@ func TestElastic_Create(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			e, err := NewElastic()
 			if err != nil {
-				log.Error(err)
+				config.Error(err)
 			}
 			e = &Elastic{
 				Index:   tt.fields.Index,
@@ -47,7 +47,7 @@ func TestElastic_Create(t *testing.T) {
 			if res, err := e.Create(tt.args.document); (err != nil) != tt.wantErr {
 				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
 			} else {
-				log.Info("data ", res.Result)
+				config.Info("data ", res.Result)
 			}
 		})
 	}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	confProp "github.com/manjada/com/config"
 	"github.com/manjada/com/db/config"
-	"github.com/manjada/com/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -27,10 +26,10 @@ func (p *PostgresGorm) Connect() error {
 		SkipDefaultTransaction: true,
 	})
 	if err != nil {
-		log.Panic(err)
+		confProp.Panic(err)
 	}
 
-	log.Info("Success connect to DB")
+	confProp.Info("Success connect to DB")
 	if confProp.GetConfig().DbConfig.Debug {
 		db = db.Debug()
 	}

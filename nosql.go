@@ -9,7 +9,6 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 	config2 "github.com/manjada/com/config"
-	"github.com/manjada/com/log"
 	"strings"
 )
 
@@ -37,7 +36,7 @@ func NewElastic() (*Elastic, error) {
 		if err != nil {
 			return &Elastic{}, err
 		}
-		log.Info("ES initialized...")
+		config2.Info("ES initialized...")
 	}
 
 	return &Elastic{}, err
@@ -58,7 +57,7 @@ func (e *Elastic) GetByDocId(documentId string) (*get.Response, error) {
 	// Build the request body.
 	res, err := client.Get(e.Index, "121212").Do(context.Background())
 	if err != nil {
-		log.Error(err)
+		config2.Error(err)
 		return nil, err
 	}
 	return res, err
