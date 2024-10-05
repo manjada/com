@@ -15,6 +15,12 @@ type PostgresGorm struct {
 }
 
 func (p *PostgresGorm) Connect() error {
+
+	// If a connection already exists, return immediately
+	if p.DB != nil {
+		return nil
+	}
+
 	p.cfg = config.NewPostgresConfig()
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=%s", p.cfg.Host, p.cfg.User, p.cfg.Password, p.cfg.DBName, p.cfg.Port, p.cfg.TimeZone)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
@@ -30,4 +36,8 @@ func (p *PostgresGorm) Connect() error {
 	}
 	p.DB = db
 	return nil
+}
+
+func (p *PostgresGorm) GetDB() *gorm.DB {
+	return p.DB
 }

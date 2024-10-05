@@ -1,13 +1,18 @@
-package mjd
+package auth
 
 import (
 	"fmt"
+	"github.com/manjada/com/db"
 	"github.com/manjada/com/db/repo"
 	"net/http"
 	"strings"
 )
 
-func VerifyPermission(r *http.Request) error {
+type AuthHandler struct {
+	DB db.DBConnector
+}
+
+func (a *AuthHandler) VerifyPermission(r *http.Request) error {
 	tokenData, _ := ExtractTokenMetadata(r)
 	roles := strings.Split(tokenData.Roles, ",")
 	var result []struct {
@@ -22,7 +27,7 @@ func VerifyPermission(r *http.Request) error {
 		Selectable bool
 		RouterLink string
 	}
-	db := repo.BaseRepoGorm{DbRepo: Db}
+	db := repo.NewBaseRepo(a.DB)
 	db = db.Raw(`WITH RECURSIVE childMenu AS (
     SELECT
 			id,
@@ -63,7 +68,7 @@ SELECT * FROM childMenu`, tokenData.Menus).Scan(&result)
 	for _, menuId := range tokenData.Menus {
 		for _, menu := range result {
 			if r.URL.Path == menu.Path {
-				db2 := repo.BaseRepoGorm{DbRepo: Db}
+				db2 := repo.NewBaseRepo(a.DB)
 				db3 := db2.Where(`role_id IN ? and menu_id = ?`, roles, menuId).DbRepo
 				var count int64
 				db3.Count(&count)

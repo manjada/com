@@ -1,7 +1,7 @@
 package repo
 
 import (
-	"github.com/manjada/com/db/connection"
+	"github.com/manjada/com/db"
 	"github.com/manjada/com/log"
 	"gorm.io/gorm"
 )
@@ -10,8 +10,8 @@ type BaseRepoGorm struct {
 	DbRepo *gorm.DB
 }
 
-func NewBaseRepo(db connection.PostgresGorm) *BaseRepoGorm {
-	return &BaseRepoGorm{DbRepo: db.DB}
+func NewBaseRepo(db db.DBConnector) BaseRepoGorm {
+	return BaseRepoGorm{DbRepo: db.GetDB()}
 }
 
 func (b BaseRepoGorm) AutoMigrate(data interface{}) error {

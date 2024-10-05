@@ -1,8 +1,7 @@
-package mjd
+package auth
 
 import (
 	"github.com/manjada/com/dto"
-	"github.com/manjada/com/model"
 	"reflect"
 	"testing"
 )
@@ -30,7 +29,7 @@ func TestCreateAuth(t *testing.T) {
 
 func TestCreateToken(t *testing.T) {
 	type args struct {
-		user model.User
+		user dto.UserToken
 	}
 	tests := []struct {
 		name    string
@@ -38,10 +37,7 @@ func TestCreateToken(t *testing.T) {
 		want    *dto.TokenDetails
 		wantErr bool
 	}{
-		{name: "Create Token", args: struct{ user model.User }{user: model.User{
-			TransactionModel: model.TransactionModel{Id: "test123"},
-			Roles: []model.Role{{TransactionModel: model.TransactionModel{}, Name: "CLIENT", Code: "CLT"}},
-		}}, want: &dto.TokenDetails{}, wantErr: false},
+		{name: "Create Token", args: struct{ user dto.UserToken }{user: dto.UserToken{}}, want: &dto.TokenDetails{}, wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -1,4 +1,4 @@
-package mjd
+package smtp
 
 import (
 	config2 "github.com/manjada/com/config"

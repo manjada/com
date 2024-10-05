@@ -1,4 +1,4 @@
-package mjd
+package pubsub
 
 import (
 	"context"
