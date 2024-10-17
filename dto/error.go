@@ -2,7 +2,7 @@ package dto
 
 import (
 	"fmt"
-	"github.com/labstack/echo/v4"
+	"github.com/manjada/com/web"
 	"net/http"
 )
 
@@ -35,10 +35,10 @@ type SystemError struct {
 
 type CustomErrorInterface interface {
 	Code() int
-	InvalidResponse(c echo.Context) error
+	InvalidResponse(c web.Context) error
 }
 
-func (o *SystemError) InvalidResponse(c echo.Context) error {
+func (o *SystemError) InvalidResponse(c web.Context) error {
 	if o != nil {
 		return c.JSON(http.StatusBadRequest, Response{
 			Status:    http.StatusBadRequest,
@@ -49,7 +49,7 @@ func (o *SystemError) InvalidResponse(c echo.Context) error {
 	return nil
 }
 
-func (o *ErrorCustom) InvalidResponse(c echo.Context) error {
+func (o *ErrorCustom) InvalidResponse(c web.Context) error {
 	if o != nil {
 		return c.JSON(http.StatusBadRequest, Response{
 			Status:    http.StatusBadRequest,
