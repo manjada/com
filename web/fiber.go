@@ -1,6 +1,13 @@
 package web
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"bytes"
+	"github.com/gofiber/fiber/v2"
+	_ "github.com/valyala/fasthttp"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+)
 
 type Fiber struct {
 	*fiber.App
@@ -16,6 +23,32 @@ func (fc *FiberCtx) Bind(i interface{}) error {
 
 func (fc *FiberCtx) JSON(code int, i interface{}) error {
 	return fc.Ctx.Status(code).JSON(i)
+}
+
+func (fc *FiberCtx) Request() *http.Request {
+	fasthttpReq := fc.Ctx.Request()
+	req := &http.Request{
+		Method:     string(fasthttpReq.Header.Method()),
+		Proto:      "HTTP/1.1",
+		ProtoMajor: 1,
+		ProtoMinor: 1,
+		Header:     make(http.Header),
+		Body:       ioutil.NopCloser(bytes.NewReader(fasthttpReq.Body())),
+		Host:       string(fasthttpReq.Host()),
+	}
+
+	fasthttpReq.Header.VisitAll(func(key, value []byte) {
+		req.Header.Set(string(key), string(value))
+	})
+
+	req.URL = &url.URL{
+		Scheme:   string(fasthttpReq.URI().Scheme()),
+		Host:     string(fasthttpReq.URI().Host()),
+		Path:     string(fasthttpReq.URI().Path()),
+		RawQuery: string(fasthttpReq.URI().QueryString()),
+	}
+
+	return req
 }
 
 func (f *Fiber) GET(path string, handler func(c Context) error) {

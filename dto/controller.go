@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/go-playground/validator"
 	"github.com/hashicorp/go-multierror"
-	"github.com/labstack/echo/v4"
+	"github.com/manjada/com/web"
 	"net/http"
 )
 
@@ -41,7 +41,7 @@ func (r Validator) Validate(i interface{}) error {
 	return nil
 }
 
-func ResponseSuccess(c echo.Context, data ...interface{}) error {
+func ResponseSuccess(c web.Context, data ...interface{}) error {
 	return c.JSON(http.StatusOK, ResponseData{
 		Response: Response{
 			Status:  http.StatusOK,
