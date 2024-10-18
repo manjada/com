@@ -12,7 +12,8 @@ import (
 )
 
 type Fiber struct {
-	*fiber.App
+	App *fiber.App
+	fiber.Router
 }
 
 func (f *Fiber) PUT(path string, handler func(c Context) error) {
@@ -87,18 +88,20 @@ func (f *Fiber) Use(handler func(c Context) error) {
 	})
 }
 
-func (f *Fiber) Group(path string, handler ...func(web Context) error) {
+func (f *Fiber) Group(path string, handler ...func(web Context) error) Web {
 	group := f.App.Group(path)
 	for _, h := range handler {
 		group.Use(func(c *fiber.Ctx) error {
 			return h(&FiberCtx{c})
 		})
 	}
+	f.Router = group
+	return f
 }
 
 func NewFiber() Web {
 	f := fiber.New()
-	return &Fiber{f}
+	return &Fiber{App: f}
 }
 
 func (f *Fiber) Start(addr string) error {

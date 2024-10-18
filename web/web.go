@@ -1,6 +1,8 @@
 package web
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type Web interface {
 	Start(addr string) error
@@ -8,7 +10,7 @@ type Web interface {
 	POST(path string, handler func(c Context) error)
 	PUT(path string, handler func(c Context) error)
 	DELETE(path string, handler func(c Context) error)
-	Group(path string, handler ...func(web Context) error)
+	Group(path string, handler ...func(web Context) error) Web
 }
 
 type Context interface {
