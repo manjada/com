@@ -21,6 +21,7 @@ var ERR_USER_NOT_FOUND = errCodeUser(1005, "user or password is wrong")
 var ERR_SYSTEM = errCodeUser(1006, "An error occurred in the system, please try again or contact the administrator")
 var ERR_OTP_MAX = errCodeUser(1007, "Percobaan otp sudah lebih dari batas maksimal silahkan request otp kembali")
 var ERR_OTP_INVALID = errCodeUser(1007, "Otp tidak sesuai")
+var ERR_DATA_NOT_FOUND = errCodeUser(1008, "Error Data Not Found")
 
 type ErrorCustom struct {
 	CodeError int

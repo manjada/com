@@ -25,6 +25,10 @@ func (fc *FiberCtx) JSON(code int, i interface{}) error {
 	return fc.Ctx.Status(code).JSON(i)
 }
 
+func (fc *FiberCtx) Param(key string) string {
+	return fc.Ctx.Params(key)
+}
+
 func (fc *FiberCtx) Request() *http.Request {
 	fasthttpReq := fc.Ctx.Request()
 	req := &http.Request{

@@ -12,4 +12,5 @@ type Context interface {
 	Bind(i interface{}) error
 	JSON(code int, i interface{}) error
 	Request() *http.Request
+	Param(key string) string
 }
