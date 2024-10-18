@@ -13,6 +13,18 @@ type Fiber struct {
 	*fiber.App
 }
 
+func (f *Fiber) PUT(path string, handler func(c Context) error) {
+	f.App.Put(path, func(c *fiber.Ctx) error {
+		return handler(&FiberCtx{c})
+	})
+}
+
+func (f *Fiber) DELETE(path string, handler func(c Context) error) {
+	f.App.Delete(path, func(c *fiber.Ctx) error {
+		return handler(&FiberCtx{c})
+	})
+}
+
 type FiberCtx struct {
 	*fiber.Ctx
 }
