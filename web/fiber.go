@@ -81,16 +81,19 @@ func (f *Fiber) POST(path string, handler func(c Context) error) {
 	})
 }
 
-func (f *Fiber) Group(path string, handler func(c Context) error) {
-	f.App.Group(path, func(c *fiber.Ctx) error {
-		return handler(&FiberCtx{c})
-	})
-}
-
 func (f *Fiber) Use(handler func(c Context) error) {
 	f.App.Use(func(c *fiber.Ctx) error {
 		return handler(&FiberCtx{c})
 	})
+}
+
+func (f *Fiber) Group(path string, handler ...func(web Context) error) {
+	group := f.App.Group(path)
+	for _, h := range handler {
+		group.Use(func(c *fiber.Ctx) error {
+			return h(&FiberCtx{c})
+		})
+	}
 }
 
 func NewFiber() Web {
