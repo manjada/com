@@ -12,14 +12,22 @@ import (
 )
 
 type Fiber struct {
-	App *fiber.App
-	fiber.Router
+	App         *fiber.App
+	GroupRouter fiber.Router
 }
 
 func (f *Fiber) PUT(path string, handler func(c Context) error) {
-	f.App.Put(path, func(c *fiber.Ctx) error {
-		return handler(&FiberCtx{c})
-	})
+	group, ok := f.GroupRouter.(*fiber.Group)
+	if !ok {
+		f.App.Put(path, func(c *fiber.Ctx) error {
+			return handler(&FiberCtx{c})
+		})
+	} else {
+		group.Put(path, func(c *fiber.Ctx) error {
+			return handler(&FiberCtx{c})
+		})
+	}
+
 }
 
 func (f *Fiber) DELETE(path string, handler func(c Context) error) {
@@ -71,9 +79,16 @@ func (fc *FiberCtx) Request() *http.Request {
 }
 
 func (f *Fiber) GET(path string, handler func(c Context) error) {
-	f.App.Get(path, func(c *fiber.Ctx) error {
-		return handler(&FiberCtx{c})
-	})
+	group, ok := f.GroupRouter.(*fiber.Group)
+	if !ok {
+		f.App.Get(path, func(c *fiber.Ctx) error {
+			return handler(&FiberCtx{c})
+		})
+	} else {
+		group.Get(path, func(c *fiber.Ctx) error {
+			return handler(&FiberCtx{c})
+		})
+	}
 }
 
 func (f *Fiber) POST(path string, handler func(c Context) error) {
@@ -95,7 +110,7 @@ func (f *Fiber) Group(path string, handler ...func(web Context) error) Web {
 			return h(&FiberCtx{c})
 		})
 	}
-	f.Router = group
+	f.GroupRouter = group
 	return f
 }
 
