@@ -87,6 +87,12 @@ func (f *Fiber) Group(path string, handler func(c Context) error) {
 	})
 }
 
+func (f *Fiber) Use(handler func(c Context) error) {
+	f.App.Use(func(c *fiber.Ctx) error {
+		return handler(&FiberCtx{c})
+	})
+}
+
 func NewFiber() Web {
 	f := fiber.New()
 	return &Fiber{f}
