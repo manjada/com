@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt"
-	"github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/manjada/com/config"
@@ -75,21 +74,6 @@ func CreateAuth(userId string, td *dto.TokenDetails) error {
 		return err
 	}
 	return err
-}
-
-func JwtConfig() echojwt.Config {
-	secretKey := config.GetConfig().AppJwt.AccessSecret
-	config := echojwt.Config{
-		SigningKey: []byte(secretKey),
-		ParseTokenFunc: func(c echo.Context, auth string) (interface{}, error) {
-			err := tokenValid(c.Request())
-			if err != nil {
-				return nil, err
-			}
-			return nil, nil
-		},
-	}
-	return config
 }
 
 func tokenValid(r *http.Request) error {

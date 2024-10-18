@@ -2,7 +2,9 @@ package web
 
 import (
 	"bytes"
+	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/manjada/com/config"
 	_ "github.com/valyala/fasthttp"
 	"io/ioutil"
 	"net/http"
@@ -79,6 +81,12 @@ func (f *Fiber) POST(path string, handler func(c Context) error) {
 	})
 }
 
+func (f *Fiber) Group(path string, handler func(c Context) error) {
+	f.App.Group(path, func(c *fiber.Ctx) error {
+		return handler(&FiberCtx{c})
+	})
+}
+
 func NewFiber() Web {
 	f := fiber.New()
 	return &Fiber{f}
@@ -86,4 +94,26 @@ func NewFiber() Web {
 
 func (f *Fiber) Start(addr string) error {
 	return f.App.Listen(addr)
+}
+
+// JwtConfig returns a configuration struct for JWT middleware
+func JwtConfigFiber() jwtware.Config {
+	secretKey := config.GetConfig().AppJwt.AccessSecret
+	return jwtware.Config{
+		SigningKey:  jwtware.SigningKey{Key: []byte(secretKey)},
+		TokenLookup: "header:Authorization",
+		AuthScheme:  "Bearer",
+		SuccessHandler: func(c *fiber.Ctx) error {
+			return c.Next()
+		},
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+		},
+	}
+}
+
+// FiberJwtMiddleware returns JWT middleware for Fiber framework
+func FiberJwtMiddleware() fiber.Handler {
+	configJwt := JwtConfigFiber()
+	return jwtware.New(configJwt)
 }

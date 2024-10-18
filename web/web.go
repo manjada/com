@@ -8,6 +8,7 @@ type Web interface {
 	POST(path string, handler func(c Context) error)
 	PUT(path string, handler func(c Context) error)
 	DELETE(path string, handler func(c Context) error)
+	Group(path string, handler func(web Context) error)
 }
 
 type Context interface {
