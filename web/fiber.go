@@ -17,13 +17,12 @@ type Fiber struct {
 }
 
 func (f *Fiber) PUT(path string, handler func(c Context) error) {
-	group, ok := f.GroupRouter.(*fiber.Group)
-	if !ok {
-		f.App.Put(path, func(c *fiber.Ctx) error {
+	if group, ok := f.GroupRouter.(*fiber.Group); ok {
+		group.Put(path, func(c *fiber.Ctx) error {
 			return handler(&FiberCtx{c})
 		})
 	} else {
-		group.Put(path, func(c *fiber.Ctx) error {
+		f.App.Put(path, func(c *fiber.Ctx) error {
 			return handler(&FiberCtx{c})
 		})
 	}
@@ -31,9 +30,15 @@ func (f *Fiber) PUT(path string, handler func(c Context) error) {
 }
 
 func (f *Fiber) DELETE(path string, handler func(c Context) error) {
-	f.App.Delete(path, func(c *fiber.Ctx) error {
-		return handler(&FiberCtx{c})
-	})
+	if group, ok := f.GroupRouter.(*fiber.Group); ok {
+		group.Delete(path, func(c *fiber.Ctx) error {
+			return handler(&FiberCtx{c})
+		})
+	} else {
+		f.App.Delete(path, func(c *fiber.Ctx) error {
+			return handler(&FiberCtx{c})
+		})
+	}
 }
 
 type FiberCtx struct {
@@ -79,28 +84,27 @@ func (fc *FiberCtx) Request() *http.Request {
 }
 
 func (f *Fiber) GET(path string, handler func(c Context) error) {
-	group, ok := f.GroupRouter.(*fiber.Group)
-	if !ok {
-		f.App.Get(path, func(c *fiber.Ctx) error {
+	if group, ok := f.GroupRouter.(*fiber.Group); ok {
+		group.Get(path, func(c *fiber.Ctx) error {
 			return handler(&FiberCtx{c})
 		})
 	} else {
-		group.Get(path, func(c *fiber.Ctx) error {
+		f.App.Get(path, func(c *fiber.Ctx) error {
 			return handler(&FiberCtx{c})
 		})
 	}
 }
 
 func (f *Fiber) POST(path string, handler func(c Context) error) {
-	f.App.Post(path, func(c *fiber.Ctx) error {
-		return handler(&FiberCtx{c})
-	})
-}
-
-func (f *Fiber) Use(handler func(c Context) error) {
-	f.App.Use(func(c *fiber.Ctx) error {
-		return handler(&FiberCtx{c})
-	})
+	if group, ok := f.GroupRouter.(*fiber.Group); ok {
+		group.Post(path, func(c *fiber.Ctx) error {
+			return handler(&FiberCtx{c})
+		})
+	} else {
+		f.App.Post(path, func(c *fiber.Ctx) error {
+			return handler(&FiberCtx{c})
+		})
+	}
 }
 
 func (f *Fiber) Group(path string, handler ...func(web Context) error) Web {
