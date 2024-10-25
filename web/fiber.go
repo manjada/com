@@ -161,7 +161,19 @@ func JwtConfigFiber() jwtware.Config {
 }
 
 // FiberJwtMiddleware returns JWT middleware for Fiber framework
-func FiberJwtMiddleware() fiber.Handler {
+func FiberJwtMiddleware() Use {
 	configJwt := JwtConfigFiber()
-	return jwtware.New(configJwt)
+	return NewJwtMiddleware(jwtware.New(configJwt))
+}
+
+type JwtMiddleware struct {
+	handler fiber.Handler
+}
+
+func NewJwtMiddleware(handler fiber.Handler) *JwtMiddleware {
+	return &JwtMiddleware{handler: handler}
+}
+
+func (m *JwtMiddleware) Handle(c Context) error {
+	return m.handler(c.(*FiberCtx).Ctx)
 }
