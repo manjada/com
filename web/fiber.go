@@ -16,15 +16,19 @@ type Fiber struct {
 	GroupRouter fiber.Router
 }
 
-func (f *Fiber) USE(handler func(web Context) error) Web {
+func (f *Fiber) USE(handlers ...Use) Web {
 	if group, ok := f.GroupRouter.(*fiber.Group); ok {
-		group.Use(func(c *fiber.Ctx) error {
-			return handler(&FiberCtx{c})
-		})
+		for _, handler := range handlers {
+			group.Use(func(c *fiber.Ctx) error {
+				return handler.Handle(&FiberCtx{c})
+			})
+		}
 	} else {
-		f.App.Use(func(c *fiber.Ctx) error {
-			return handler(&FiberCtx{c})
-		})
+		for _, handler := range handlers {
+			f.App.Use(func(c *fiber.Ctx) error {
+				return handler.Handle(&FiberCtx{c})
+			})
+		}
 	}
 	return f
 }
