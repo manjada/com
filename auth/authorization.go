@@ -5,19 +5,25 @@ import (
 	"fmt"
 	"github.com/manjada/com/db"
 	"github.com/manjada/com/db/repo"
-	"net/http"
+	"github.com/manjada/com/web"
 	"strings"
 )
 
 type AuthHandler struct {
-	DB db.DBConnector
+	DB     db.DBConnector
+	Action string
 }
 
-func (a *AuthHandler) VerifyPermission(r *http.Request, action string) error {
-	tokenData, _ := ExtractTokenMetadata(r)
+// FiberJwtMiddleware returns JWT middleware for Fiber framework
+func NewAuthHandler(Action string) web.Use {
+	return &AuthHandler{Action: Action}
+}
+
+func (a *AuthHandler) Handle(c web.Context) error {
+	tokenData, _ := ExtractTokenMetadata(c.Request())
 	roles := strings.Split(tokenData.Roles, ",")
-	path := r.URL.Path
-	err := a.validationPermission(roles, action, path)
+	path := c.Request().URL.Path
+	err := a.validationPermission(roles, a.Action, path)
 	if err != nil {
 		return fmt.Errorf("failed to get permissions: %v", err)
 	}
