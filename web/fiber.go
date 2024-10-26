@@ -33,7 +33,7 @@ func (f *Fiber) USE(handlers ...Use) Web {
 	return f
 }
 
-func (f *Fiber) PUT(path string, handler func(c Context) error) {
+func (f *Fiber) PUT(path string, handler func(c Context) error, middleware ...func(c Context) error) {
 	if group, ok := f.GroupRouter.(*fiber.Group); ok {
 		group.Put(path, func(c *fiber.Ctx) error {
 			return handler(&FiberCtx{c})
@@ -46,7 +46,7 @@ func (f *Fiber) PUT(path string, handler func(c Context) error) {
 
 }
 
-func (f *Fiber) DELETE(path string, handler func(c Context) error) {
+func (f *Fiber) DELETE(path string, handler func(c Context) error, middleware ...func(c Context) error) {
 	if group, ok := f.GroupRouter.(*fiber.Group); ok {
 		group.Delete(path, func(c *fiber.Ctx) error {
 			return handler(&FiberCtx{c})
@@ -100,26 +100,50 @@ func (fc *FiberCtx) Request() *http.Request {
 	return req
 }
 
-func (f *Fiber) GET(path string, handler func(c Context) error) {
+func (f *Fiber) GET(path string, handler func(c Context) error, middleware ...func(c Context) error) {
 	if group, ok := f.GroupRouter.(*fiber.Group); ok {
-		group.Get(path, func(c *fiber.Ctx) error {
-			return handler(&FiberCtx{c})
+		group.Post(path, func(c *fiber.Ctx) error {
+			ctx := &FiberCtx{c}
+			for _, a := range middleware {
+				if err := a(ctx); err != nil {
+					return err
+				}
+			}
+			return handler(ctx)
 		})
 	} else {
-		f.App.Get(path, func(c *fiber.Ctx) error {
-			return handler(&FiberCtx{c})
+		f.App.Post(path, func(c *fiber.Ctx) error {
+			ctx := &FiberCtx{c}
+			for _, a := range middleware {
+				if err := a(ctx); err != nil {
+					return err
+				}
+			}
+			return handler(ctx)
 		})
 	}
 }
 
-func (f *Fiber) POST(path string, handler func(c Context) error) {
+func (f *Fiber) POST(path string, handler func(c Context) error, middleware ...func(c Context) error) {
 	if group, ok := f.GroupRouter.(*fiber.Group); ok {
 		group.Post(path, func(c *fiber.Ctx) error {
-			return handler(&FiberCtx{c})
+			ctx := &FiberCtx{c}
+			for _, a := range middleware {
+				if err := a(ctx); err != nil {
+					return err
+				}
+			}
+			return handler(ctx)
 		})
 	} else {
 		f.App.Post(path, func(c *fiber.Ctx) error {
-			return handler(&FiberCtx{c})
+			ctx := &FiberCtx{c}
+			for _, a := range middleware {
+				if err := a(ctx); err != nil {
+					return err
+				}
+			}
+			return handler(ctx)
 		})
 	}
 }

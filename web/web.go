@@ -6,10 +6,10 @@ import (
 
 type Web interface {
 	Start(addr string) error
-	GET(path string, handler func(c Context) error)
-	POST(path string, handler func(c Context) error)
-	PUT(path string, handler func(c Context) error)
-	DELETE(path string, handler func(c Context) error)
+	GET(path string, handler func(c Context) error, middleware ...func(c Context) error)
+	POST(path string, handler func(c Context) error, middleware ...func(c Context) error)
+	PUT(path string, handler func(c Context) error, middleware ...func(c Context) error)
+	DELETE(path string, handler func(c Context) error, middleware ...func(c Context) error)
 	Group(path string, handler ...func(web Context) error) Web
 	USE(handler ...Use) Web
 }
