@@ -17,7 +17,7 @@ func NewBaseRepo(db db.DBConnector) BaseRepoGorm {
 	// if using direct connection
 	if db == nil {
 		switch config.GetConfig().DbConfig.Type {
-		case "postgres":
+		case "postgresql":
 			db = &connection.GormDb
 		default:
 			config.Panic(errors.New("Database type not supported"))
