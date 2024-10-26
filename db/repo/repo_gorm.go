@@ -1,8 +1,10 @@
 package repo
 
 import (
+	"errors"
 	"github.com/manjada/com/config"
 	"github.com/manjada/com/db"
+	"github.com/manjada/com/db/connection"
 	"gorm.io/gorm"
 )
 
@@ -11,6 +13,17 @@ type BaseRepoGorm struct {
 }
 
 func NewBaseRepo(db db.DBConnector) BaseRepoGorm {
+
+	// if using direct connection
+	if db == nil {
+		switch config.GetConfig().DbConfig.Type {
+		case "postgres":
+			db = &connection.GormDb
+		default:
+			config.Panic(errors.New("Database type not supported"))
+		}
+
+	}
 	return BaseRepoGorm{DbRepo: db.GetDB()}
 }
 

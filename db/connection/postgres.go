@@ -8,6 +8,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var GormDb PostgresGorm
+
 type PostgresGorm struct {
 	cfg *config.PostgresConfig
 	DB  *gorm.DB
@@ -17,6 +19,7 @@ func (p *PostgresGorm) Connect() error {
 
 	// If a connection already exists, return immediately
 	if p.DB != nil {
+		GormDb = *p
 		return nil
 	}
 

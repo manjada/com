@@ -43,7 +43,7 @@ func (a *AuthHandler) validationPermission(roles []string, action string, path s
 		WHERE menu_code = ? and deleted_at IS NULL
 	`
 
-	baseModule := repo.NewBaseRepo(a.DB).Raw(queryModule, moduleCode).Scan(&moduleMenuId)
+	baseModule := repo.NewBaseRepo(nil).Raw(queryModule, moduleCode).Scan(&moduleMenuId)
 	if baseModule.DbRepo.Error != nil {
 		return baseModule.DbRepo.Error
 	}
