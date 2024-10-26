@@ -102,11 +102,11 @@ func (f *Fiber) DELETE(path string, handler func(c Context) error, middleware ..
 
 func (f *Fiber) GET(path string, handler func(c Context) error, middleware ...Use) {
 	if group, ok := f.GroupRouter.(*fiber.Group); ok {
-		group.Post(path, func(c *fiber.Ctx) error {
+		group.Get(path, func(c *fiber.Ctx) error {
 			return handle(c, middleware, handler)
 		})
 	} else {
-		f.App.Post(path, func(c *fiber.Ctx) error {
+		f.App.Get(path, func(c *fiber.Ctx) error {
 			return handle(c, middleware, handler)
 		})
 	}
