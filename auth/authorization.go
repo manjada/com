@@ -49,11 +49,11 @@ func (a *AuthHandler) validationPermission(roles []string, action string, path s
 	}
 	var results []struct {
 		Id         string
-		isEdit     bool
-		isCreate   bool
-		isDelete   bool
-		isView     bool
-		isApproval bool
+		IsEdit     bool
+		IsCreate   bool
+		IsDelete   bool
+		IsView     bool
+		IsApproval bool
 	}
 	query := `
 		SELECT * 
@@ -69,23 +69,23 @@ func (a *AuthHandler) validationPermission(roles []string, action string, path s
 	for _, permission := range results {
 		switch action {
 		case "CREATE":
-			if permission.isCreate {
+			if permission.IsCreate {
 				return nil
 			}
 		case "EDIT":
-			if permission.isEdit {
+			if permission.IsEdit {
 				return nil
 			}
 		case "DELETE":
-			if permission.isDelete {
+			if permission.IsDelete {
 				return nil
 			}
 		case "VIEW":
-			if permission.isView {
+			if permission.IsView {
 				return nil
 			}
 		case "APPROVAL":
-			if permission.isApproval {
+			if permission.IsApproval {
 				return nil
 			}
 		default:
