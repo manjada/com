@@ -39,7 +39,7 @@ func (a *AuthHandler) validationPermission(roles []string, action string, path s
 	var moduleMenuId string
 	queryModule := `
 		SELECT id as module_menu_id 
-		FROM module_menu 
+		FROM module_menus 
 		WHERE menu_code = ? and deleted_at IS NULL
 	`
 
