@@ -11,4 +11,6 @@ const (
 
 	ROLES_CODE_CLIENT = "CLT"
 	ROLES_CODE_ADMIN  = "ADM"
+
+	DataSuccessDeleted = "Data successfully deleted"
 )
