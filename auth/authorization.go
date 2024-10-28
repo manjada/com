@@ -32,9 +32,8 @@ func (a *AuthHandler) Handle(c web.Context) error {
 }
 
 func (a *AuthHandler) validationPermission(roles []string, action string, path string) error {
-	// Find the index of "/v1"
-	index := strings.Index(path, "/v1/")
-	moduleCode := path[index+len("/v1/"):]
+	// get moduleCode
+	moduleCode := strings.Split(path, "/")[2]
 
 	var moduleMenuId string
 	queryModule := `
