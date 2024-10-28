@@ -33,7 +33,7 @@ func (a *AuthHandler) Handle(c web.Context) error {
 
 func (a *AuthHandler) validationPermission(roles []string, action string, path string) error {
 	// get moduleCode
-	moduleCode := strings.Split(path, "/")[2]
+	moduleCode := strings.Split(path, "/")[3]
 
 	var moduleMenuId string
 	queryModule := `
