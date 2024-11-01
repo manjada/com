@@ -28,7 +28,6 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	atClaims.AccessUuid = td.AccessUuid
 	atClaims.UserId = user.Id
 	atClaims.Roles = user.Roles
-	atClaims.Menus = user.Menus
 	atClaims.ClientId = user.ClientId
 	atClaims.IsTenant = user.IsTenant
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
@@ -44,7 +43,8 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	rtClaims.RefreshUuid = td.RefreshUuid
 	rtClaims.UserId = user.Id
 	rtClaims.Roles = user.Roles
-	rtClaims.Menus = user.Menus
+	rtClaims.ClientId = user.ClientId
+	rtClaims.IsTenant = user.IsTenant
 
 	rtClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.RefreshExpire}
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
@@ -148,9 +148,10 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
 		return &dto.AccessDetail{
-			AccessUuid: claims["accessUuid"].(string),
-			UserId:     claims["userId"].(string),
+			AccessUuid: claims["access_uuid"].(string),
+			UserId:     claims["user_id"].(string),
 			Roles:      claims["roles"].(string),
+			IsTenant:   claims["is_tenant"].(bool),
 		}, nil
 	}
 	return nil, err

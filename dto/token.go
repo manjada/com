@@ -10,29 +10,27 @@ type UserToken struct {
 	Id       string
 	Name     string
 	Roles    string
-	Menus    []string
 	IsTenant bool
 	ClientId string
 }
 
 type TokenDetails struct {
-	AccessToken   string
-	RefreshToken  string
-	AccessUuid    string
-	RefreshUuid   string
-	AccessExpire  int64
-	RefreshExpire int64
+	AccessToken   string `json:"access_token"`
+	RefreshToken  string `json:"refresh_token"`
+	AccessUuid    string `json:"access_uuid"`
+	RefreshUuid   string `json:"refresh_uuid"`
+	AccessExpire  int64  `json:"access_expire"`
+	RefreshExpire int64  `json:"refresh_expire"`
 }
 
 type CustomClaims struct {
-	Authorized  bool
-	AccessUuid  string
-	RefreshUuid string
-	UserId      string
-	Roles       string
-	Menus       []string
-	ClientId    string
-	IsTenant    bool
+	Authorized  bool   `json:"authorized"`
+	AccessUuid  string `json:"access_uuid"`
+	RefreshUuid string `json:"refresh_uuid"`
+	UserId      string `json:"user_id"`
+	Roles       string `json:"roles"`
+	ClientId    string `json:"client_id"`
+	IsTenant    bool   `json:"is_tenant"`
 	jwt.StandardClaims
 }
 
