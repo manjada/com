@@ -7,10 +7,12 @@ import (
 )
 
 type UserToken struct {
-	Id    string   `json:"id"`
-	Name  string   `json:"name"`
-	Roles string   `json:"roles"`
-	Menus []string `json:"menus"`
+	Id       string
+	Name     string
+	Roles    string
+	Menus    []string
+	IsTenant bool
+	ClientId string
 }
 
 type TokenDetails struct {
@@ -23,12 +25,14 @@ type TokenDetails struct {
 }
 
 type CustomClaims struct {
-	Authorized  bool     `json:"authorized"`
-	AccessUuid  string   `json:"accessUuid"`
-	RefreshUuid string   `json:"refreshUuid"`
-	UserId      string   `json:"userId"`
-	Roles       string   `json:"roles"`
-	Menus       []string `json:"menus"`
+	Authorized  bool
+	AccessUuid  string
+	RefreshUuid string
+	UserId      string
+	Roles       string
+	Menus       []string
+	ClientId    string
+	IsTenant    bool
 	jwt.StandardClaims
 }
 
@@ -44,4 +48,5 @@ type AccessDetail struct {
 	UserId     string
 	Roles      string
 	Menus      []string
+	IsTenant   bool
 }

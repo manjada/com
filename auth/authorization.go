@@ -21,6 +21,11 @@ func NewAuthHandler(Action string) web.Use {
 
 func (a *AuthHandler) Handle(c web.Context) error {
 	tokenData, _ := ExtractTokenMetadata(c.Request())
+
+	// if tenant, no need to check permission
+	if tokenData.IsTenant {
+		return nil
+	}
 	roles := strings.Split(tokenData.Roles, ",")
 	path := c.Request().URL.Path
 	err := a.validationPermission(roles, a.Action, path)

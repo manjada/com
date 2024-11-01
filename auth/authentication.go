@@ -29,7 +29,8 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	atClaims.UserId = user.Id
 	atClaims.Roles = user.Roles
 	atClaims.Menus = user.Menus
-
+	atClaims.ClientId = user.ClientId
+	atClaims.IsTenant = user.IsTenant
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 
