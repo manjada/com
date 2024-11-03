@@ -202,7 +202,3 @@ func initCorsConfig() cors.Config {
 	}
 	return corsConfig
 }
-
-func NewCorsConfigMiddleware(handler fiber.Handler) *FiberMiddleware {
-	return &FiberMiddleware{handler: handler}
-}
