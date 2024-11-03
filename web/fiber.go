@@ -50,6 +50,27 @@ func (fc *FiberCtx) Param(key string) string {
 	return fc.Ctx.Params(key)
 }
 
+func (fc *FiberCtx) Query(key string, typeData string) any {
+	switch typeData {
+	case "int":
+		return fc.Ctx.QueryInt(key)
+	case "float":
+		return fc.Ctx.QueryFloat(key)
+	case "bool":
+		return fc.Ctx.QueryBool(key)
+	default:
+		return fc.Ctx.Query(key)
+	}
+}
+
+func (fc *FiberCtx) Queries() map[string]string {
+	return fc.Ctx.Queries()
+}
+
+func (fc *FiberCtx) AllParams() map[string]string {
+	return fc.Ctx.AllParams()
+}
+
 func (fc *FiberCtx) Request() *http.Request {
 	fasthttpReq := fc.Ctx.Request()
 	req := &http.Request{

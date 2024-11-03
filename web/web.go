@@ -19,6 +19,9 @@ type Context interface {
 	JSON(code int, i interface{}) error
 	Request() *http.Request
 	Param(key string) string
+	Query(key string, typeData string) any
+	Queries() map[string]string
+	AllParams() map[string]string
 }
 
 type Use interface {
