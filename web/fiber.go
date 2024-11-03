@@ -4,6 +4,7 @@ import (
 	"bytes"
 	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/manjada/com/config"
 	_ "github.com/valyala/fasthttp"
 	"io/ioutil"
@@ -155,7 +156,7 @@ func (f *Fiber) Start(addr string) error {
 }
 
 // JwtConfig returns a configuration struct for JWT middleware
-func JwtConfigFiber() jwtware.Config {
+func jwtConfigFiber() jwtware.Config {
 	secretKey := config.GetConfig().AppJwt.AccessSecret
 	return jwtware.Config{
 		SigningKey:  jwtware.SigningKey{Key: []byte(secretKey)},
@@ -172,18 +173,36 @@ func JwtConfigFiber() jwtware.Config {
 
 // FiberJwtMiddleware returns JWT middleware for Fiber framework
 func FiberJwtMiddleware() Use {
-	configJwt := JwtConfigFiber()
+	configJwt := jwtConfigFiber()
 	return NewJwtMiddleware(jwtware.New(configJwt))
 }
 
-type JwtMiddleware struct {
+type FiberMiddleware struct {
 	handler fiber.Handler
 }
 
-func NewJwtMiddleware(handler fiber.Handler) *JwtMiddleware {
-	return &JwtMiddleware{handler: handler}
+func NewJwtMiddleware(handler fiber.Handler) *FiberMiddleware {
+	return &FiberMiddleware{handler: handler}
 }
 
-func (m *JwtMiddleware) Handle(c Context) error {
+func (m *FiberMiddleware) Handle(c Context) error {
 	return m.handler(c.(*FiberCtx).Ctx)
+}
+
+func FiberCorsConfig() Use {
+	corsConfig := initCorsConfig()
+	return NewJwtMiddleware(cors.New(corsConfig))
+}
+
+func initCorsConfig() cors.Config {
+	corsConfig := cors.Config{
+		AllowOrigins: "*",
+		AllowMethods: "GET,POST,PUT,DELETE",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization, X-CSRF-Token",
+	}
+	return corsConfig
+}
+
+func NewCorsConfigMiddleware(handler fiber.Handler) *FiberMiddleware {
+	return &FiberMiddleware{handler: handler}
 }
