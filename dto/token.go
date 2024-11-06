@@ -3,6 +3,7 @@ package dto
 import (
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
+	"github.com/manjada/com/config"
 	"time"
 )
 
@@ -35,9 +36,11 @@ type CustomClaims struct {
 }
 
 func (receiver *TokenDetails) CreateTokenDetails() {
-	receiver.AccessExpire = time.Now().Add(time.Minute * 15).Unix()
+	tokenExpire := time.Duration(config.GetConfig().AppHost.TokenExpire) * time.Minute
+	tokenRefreshExpire := time.Duration(config.GetConfig().AppHost.TokenRefreshExpire) * time.Minute
+	receiver.AccessExpire = time.Now().Add(tokenExpire).Unix()
 	receiver.AccessUuid = uuid.New().String()
-	receiver.RefreshExpire = time.Now().Add(time.Hour * 24 * 7).Unix()
+	receiver.RefreshExpire = time.Now().Add(tokenRefreshExpire).Unix()
 	receiver.RefreshUuid = uuid.New().String()
 }
 
