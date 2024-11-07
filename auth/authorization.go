@@ -1,85 +1,101 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"github.com/manjada/com/db"
 	"github.com/manjada/com/db/repo"
-	"net/http"
+	"github.com/manjada/com/web"
 	"strings"
 )
 
 type AuthHandler struct {
-	DB db.DBConnector
+	DB     db.DBConnector
+	Action string
 }
 
-func (a *AuthHandler) VerifyPermission(r *http.Request) error {
-	tokenData, _ := ExtractTokenMetadata(r)
-	roles := strings.Split(tokenData.Roles, ",")
-	var result []struct {
-		Id         string
-		ParentId   string
-		Code       string
-		Path       string
-		Icon       string
-		Label      string
-		Sequence   int
-		IsConfig   bool
-		Selectable bool
-		RouterLink string
+// FiberJwtMiddleware returns JWT middleware for Fiber framework
+func NewAuthHandler(Action string) web.Use {
+	return &AuthHandler{Action: Action}
+}
+
+func (a *AuthHandler) Handle(c web.Context) error {
+	tokenData, _ := ExtractTokenMetadata(c.Request())
+
+	// if tenant, no need to check permission
+	if tokenData.IsTenant {
+		return nil
 	}
-	db := repo.NewBaseRepo(a.DB)
-	db = db.Raw(`WITH RECURSIVE childMenu AS (
-    SELECT
-			id,
-			parent_id,
-			code,
-			path,
-			icon,
-			is_config,
-			selectable,
-			sequence,
-			label,
-			router_link
-    FROM
-        menus
-    WHERE
-            id IN (?)
-    UNION
-    SELECT
-			e.id,
-			e.parent_id,
-			e.code,
-			e.path,
-			e.icon,
-			e.is_config,
-			e.selectable,
-			e.sequence,
-			e.label,
-			e.router_link
-    FROM
-        menus e
-            INNER JOIN childMenu s ON s.id = e.parent_id
-)
-SELECT * FROM childMenu`, tokenData.Menus).Scan(&result)
-	if db.DbRepo.Error != nil {
-		return db.DbRepo.Error
+	roles := strings.Split(tokenData.Roles, ",")
+	path := c.Request().URL.Path
+	err := a.validationPermission(roles, a.Action, path)
+	if err != nil {
+		return fmt.Errorf("failed to get permissions: %v", err)
 	}
 
-	for _, menuId := range tokenData.Menus {
-		for _, menu := range result {
-			if r.URL.Path == menu.Path {
-				db2 := repo.NewBaseRepo(a.DB)
-				db3 := db2.Where(`role_id IN ? and menu_id = ?`, roles, menuId).DbRepo
-				var count int64
-				db3.Count(&count)
-				if count > 1 {
-					return nil
-				} else {
-					return fmt.Errorf("Access is not allowed")
-				}
+	return nil
+}
+
+func (a *AuthHandler) validationPermission(roles []string, action string, path string) error {
+	// get moduleCode
+	moduleCode := strings.Split(path, "/")[3]
+
+	var moduleMenuId string
+	queryModule := `
+		SELECT id as module_menu_id 
+		FROM module_menus 
+		WHERE menu_code = ? and deleted_at IS NULL
+	`
+
+	baseModule := repo.NewBaseRepo(nil).Raw(queryModule, moduleCode).Scan(&moduleMenuId)
+	if baseModule.DbRepo.Error != nil {
+		return baseModule.DbRepo.Error
+	}
+	var results []struct {
+		Id         string
+		IsEdit     bool
+		IsCreate   bool
+		IsDelete   bool
+		IsView     bool
+		IsApproval bool
+	}
+	query := `
+		SELECT * 
+		FROM role_permissions 
+		WHERE role_id IN (?) and module_menu_id = ? and deleted_at IS NULL
+	`
+
+	base := repo.NewBaseRepo(nil).Raw(query, roles, moduleMenuId).Scan(&results)
+	if base.DbRepo.Error != nil {
+		return base.DbRepo.Error
+	}
+
+	for _, permission := range results {
+		switch action {
+		case "CREATE":
+			if permission.IsCreate {
+				return nil
 			}
+		case "EDIT":
+			if permission.IsEdit {
+				return nil
+			}
+		case "DELETE":
+			if permission.IsDelete {
+				return nil
+			}
+		case "VIEW":
+			if permission.IsView {
+				return nil
+			}
+		case "APPROVAL":
+			if permission.IsApproval {
+				return nil
+			}
+		default:
+			return errors.New("action not found")
 		}
 	}
 
-	return fmt.Errorf("Access is not allowed")
+	return errors.New("permission denied")
 }

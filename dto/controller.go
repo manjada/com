@@ -41,7 +41,7 @@ func (r Validator) Validate(i interface{}) error {
 	return nil
 }
 
-func ResponseSuccess(c web.Context, data ...interface{}) error {
+func ResponseSuccess(c web.Context, data interface{}) error {
 	return c.JSON(http.StatusOK, ResponseData{
 		Response: Response{
 			Status:  http.StatusOK,

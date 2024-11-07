@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt"
-	"github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/manjada/com/config"
@@ -29,8 +28,8 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	atClaims.AccessUuid = td.AccessUuid
 	atClaims.UserId = user.Id
 	atClaims.Roles = user.Roles
-	atClaims.Menus = user.Menus
-
+	atClaims.ClientId = user.ClientId
+	atClaims.IsTenant = user.IsTenant
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 
@@ -44,7 +43,8 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	rtClaims.RefreshUuid = td.RefreshUuid
 	rtClaims.UserId = user.Id
 	rtClaims.Roles = user.Roles
-	rtClaims.Menus = user.Menus
+	rtClaims.ClientId = user.ClientId
+	rtClaims.IsTenant = user.IsTenant
 
 	rtClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.RefreshExpire}
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
@@ -75,21 +75,6 @@ func CreateAuth(userId string, td *dto.TokenDetails) error {
 		return err
 	}
 	return err
-}
-
-func JwtConfig() echojwt.Config {
-	secretKey := config.GetConfig().AppJwt.AccessSecret
-	config := echojwt.Config{
-		SigningKey: []byte(secretKey),
-		ParseTokenFunc: func(c echo.Context, auth string) (interface{}, error) {
-			err := tokenValid(c.Request())
-			if err != nil {
-				return nil, err
-			}
-			return nil, nil
-		},
-	}
-	return config
 }
 
 func tokenValid(r *http.Request) error {
@@ -163,9 +148,10 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
 		return &dto.AccessDetail{
-			AccessUuid: claims["accessUuid"].(string),
-			UserId:     claims["userId"].(string),
+			AccessUuid: claims["access_uuid"].(string),
+			UserId:     claims["user_id"].(string),
 			Roles:      claims["roles"].(string),
+			IsTenant:   claims["is_tenant"].(bool),
 		}, nil
 	}
 	return nil, err

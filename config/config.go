@@ -27,8 +27,10 @@ type Config struct {
 	} `mapstructure:"fatsecret"`
 
 	AppHost struct {
-		Host string `mapstructure:"host"`
-		Port int    `mapstructure:"port"`
+		Host               string `mapstructure:"host"`
+		Port               int    `mapstructure:"port"`
+		TokenExpire        int    `mapstructure:"token_expire"`
+		TokenRefreshExpire int    `mapstructure:"token_refresh_expire"`
 	} `mapstructure:"app_host"`
 
 	DbConfig struct {

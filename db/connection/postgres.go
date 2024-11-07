@@ -8,6 +8,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var GormDb PostgresGorm
+
 type PostgresGorm struct {
 	cfg *config.PostgresConfig
 	DB  *gorm.DB
@@ -34,6 +36,7 @@ func (p *PostgresGorm) Connect() error {
 		db = db.Debug()
 	}
 	p.DB = db
+	GormDb = *p
 	return nil
 }
 

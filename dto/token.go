@@ -3,39 +3,44 @@ package dto
 import (
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
+	"github.com/manjada/com/config"
 	"time"
 )
 
 type UserToken struct {
-	Id    string   `json:"id"`
-	Name  string   `json:"name"`
-	Roles string   `json:"roles"`
-	Menus []string `json:"menus"`
+	Id       string
+	Name     string
+	Roles    string
+	IsTenant bool
+	ClientId string
 }
 
 type TokenDetails struct {
-	AccessToken   string
-	RefreshToken  string
-	AccessUuid    string
-	RefreshUuid   string
-	AccessExpire  int64
-	RefreshExpire int64
+	AccessToken   string `json:"access_token"`
+	RefreshToken  string `json:"refresh_token"`
+	AccessUuid    string `json:"access_uuid"`
+	RefreshUuid   string `json:"refresh_uuid"`
+	AccessExpire  int64  `json:"access_expire"`
+	RefreshExpire int64  `json:"refresh_expire"`
 }
 
 type CustomClaims struct {
-	Authorized  bool     `json:"authorized"`
-	AccessUuid  string   `json:"accessUuid"`
-	RefreshUuid string   `json:"refreshUuid"`
-	UserId      string   `json:"userId"`
-	Roles       string   `json:"roles"`
-	Menus       []string `json:"menus"`
+	Authorized  bool   `json:"authorized"`
+	AccessUuid  string `json:"access_uuid"`
+	RefreshUuid string `json:"refresh_uuid"`
+	UserId      string `json:"user_id"`
+	Roles       string `json:"roles"`
+	ClientId    string `json:"client_id"`
+	IsTenant    bool   `json:"is_tenant"`
 	jwt.StandardClaims
 }
 
 func (receiver *TokenDetails) CreateTokenDetails() {
-	receiver.AccessExpire = time.Now().Add(time.Minute * 15).Unix()
+	tokenExpire := time.Duration(config.GetConfig().AppHost.TokenExpire) * time.Minute
+	tokenRefreshExpire := time.Duration(config.GetConfig().AppHost.TokenRefreshExpire) * time.Minute
+	receiver.AccessExpire = time.Now().Add(tokenExpire).Unix()
 	receiver.AccessUuid = uuid.New().String()
-	receiver.RefreshExpire = time.Now().Add(time.Hour * 24 * 7).Unix()
+	receiver.RefreshExpire = time.Now().Add(tokenRefreshExpire).Unix()
 	receiver.RefreshUuid = uuid.New().String()
 }
 
@@ -44,4 +49,5 @@ type AccessDetail struct {
 	UserId     string
 	Roles      string
 	Menus      []string
+	IsTenant   bool
 }
