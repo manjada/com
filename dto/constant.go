@@ -13,4 +13,10 @@ const (
 	ROLES_CODE_ADMIN  = "ADM"
 
 	DataSuccessDeleted = "Data successfully deleted"
+
+	ACTION_CREATE  = "CREATE"
+	ACTION_UPDATE  = "UPDATE"
+	ACTION_DELETE  = "DELETE"
+	ACTION_VIEW    = "VIEW"
+	ACTION_APPROVE = "APPROVE"
 )
