@@ -30,6 +30,7 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	atClaims.Roles = user.Roles
 	atClaims.ClientId = user.ClientId
 	atClaims.IsTenant = user.IsTenant
+	atClaims.Name = user.Name
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 
@@ -45,7 +46,7 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	rtClaims.Roles = user.Roles
 	rtClaims.ClientId = user.ClientId
 	rtClaims.IsTenant = user.IsTenant
-
+	rtClaims.Name = user.Name
 	rtClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.RefreshExpire}
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
 
@@ -152,9 +153,22 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 			UserId:     claims["user_id"].(string),
 			Roles:      claims["roles"].(string),
 			IsTenant:   claims["is_tenant"].(bool),
+			Name:       claims["name"].(string),
+			IpAddress:  getIpAddress(r),
 		}, nil
 	}
 	return nil, err
+}
+
+func getIpAddress(r *http.Request) string {
+	ip := r.Header.Get("X-Real-Ip")
+	if ip == "" {
+		ip = r.Header.Get("X-Forwarded-For")
+	}
+	if ip == "" {
+		ip = r.RemoteAddr
+	}
+	return ip
 }
 
 func CorsConfig() middleware.CORSConfig {

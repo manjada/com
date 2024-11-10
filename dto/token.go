@@ -32,6 +32,7 @@ type CustomClaims struct {
 	Roles       string `json:"roles"`
 	ClientId    string `json:"client_id"`
 	IsTenant    bool   `json:"is_tenant"`
+	Name        string `json:"name"`
 	jwt.StandardClaims
 }
 
@@ -50,4 +51,6 @@ type AccessDetail struct {
 	Roles      string
 	Menus      []string
 	IsTenant   bool
+	IpAddress  string
+	Name       string
 }
