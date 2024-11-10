@@ -22,6 +22,7 @@ var ERR_SYSTEM = errCodeUser(1006, "An error occurred in the system, please try 
 var ERR_OTP_MAX = errCodeUser(1007, "Percobaan otp sudah lebih dari batas maksimal silahkan request otp kembali")
 var ERR_OTP_INVALID = errCodeUser(1007, "Otp tidak sesuai")
 var ERR_DATA_NOT_FOUND = errCodeUser(1008, "Error Data Not Found")
+var ERR_DATA_EXISTS = errCodeUser(1009, "Data Exists")
 
 type ErrorCustom struct {
 	CodeError int
