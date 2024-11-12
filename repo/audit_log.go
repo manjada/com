@@ -8,4 +8,5 @@ type AuditLog struct {
 	Module    string `gorm:"type:varchar(255)"`
 	Action    string `gorm:"type:varchar(255)"`
 	Detail    string `gorm:"type:text"`
+	ClientId  string `gorm:"type:varchar(255)"`
 }

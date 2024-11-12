@@ -154,6 +154,7 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 			Roles:      claims["roles"].(string),
 			IsTenant:   claims["is_tenant"].(bool),
 			Name:       claims["name"].(string),
+			ClientId:   claims["client_id"].(string),
 			IpAddress:  getIpAddress(r),
 		}, nil
 	}

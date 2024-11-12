@@ -53,4 +53,5 @@ type AccessDetail struct {
 	IsTenant   bool
 	IpAddress  string
 	Name       string
+	ClientId   string
 }
