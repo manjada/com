@@ -1,10 +1,12 @@
 package auth
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/manjada/com/db"
 	"github.com/manjada/com/db/repo"
+	"github.com/manjada/com/memory"
 	"github.com/manjada/com/web"
 	"strings"
 )
@@ -30,17 +32,42 @@ func (a *AuthHandler) Handle(c web.Context) error {
 	}
 	roles := strings.Split(tokenData.Roles, ",")
 	path := c.Request().URL.Path
-	err = a.validationPermission(roles, a.Action, path)
+	// get moduleCode
+	moduleCode := strings.Split(path, "/")[3]
+	redis, _ := memory.NewRedisWrap()
+
+	// Check Redis for cached permissions
+	cacheKey := fmt.Sprintf("usr_prm_%s", tokenData.UserId)
+	permissionKeyValue := fmt.Sprintf("%s_%s_%s", tokenData.Roles, moduleCode, a.Action)
+	permissionCheck, err := redis.HashGet(context.Background(), cacheKey)
+	if err != nil {
+		return err
+	}
+
+	for key, value := range permissionCheck {
+		if key == permissionKeyValue {
+			if value == "true" {
+				return nil
+			}
+		}
+	}
+
+	err = a.validationPermission(roles, a.Action, moduleCode)
 	if err != nil {
 		return fmt.Errorf("failed to get permissions: %v", err)
+	}
+
+	// Set permission to Redis
+	permissionValue := make(map[string]interface{})
+	permissionValue[permissionKeyValue] = "true"
+	if err := redis.HashSet(context.Background(), cacheKey, permissionValue, nil); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (a *AuthHandler) validationPermission(roles []string, action string, path string) error {
-	// get moduleCode
-	moduleCode := strings.Split(path, "/")[3]
+func (a *AuthHandler) validationPermission(roles []string, action string, moduleCode string) error {
 
 	var moduleMenuId string
 	queryModule := `

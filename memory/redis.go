@@ -20,6 +20,7 @@ type RedisInterface interface {
 	HashGet(ctx context.Context, key string) (map[string]string, error)
 	Delete(ctx context.Context, key string) error
 	GetInt(ctx context.Context, key string) (int, error)
+	GetBoolean(ctx context.Context, key string) (bool, error)
 }
 
 func NewRedisWrap() (*RedisWrap, error) {
@@ -60,6 +61,14 @@ func (r RedisWrap) Set(ctx context.Context, key string, data interface{}, durati
 func (r RedisWrap) GetString(ctx context.Context, key string) string {
 	val := redisClient.Get(ctx, key).Val()
 	return val
+}
+
+func (r RedisWrap) GetBoolean(ctx context.Context, key string) (bool, error) {
+	val, err := redisClient.Get(ctx, key).Result()
+	if err != nil {
+		return false, err
+	}
+	return val == "true", nil
 }
 
 func (r RedisWrap) GetInt(ctx context.Context, key string) (int, error) {
