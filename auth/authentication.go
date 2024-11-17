@@ -90,9 +90,12 @@ func tokenValid(r *http.Request) error {
 		return err
 	}
 
-	_, err = fetchAuth(accessDetail)
+	exists, err := fetchAuth(accessDetail)
 	if err != nil {
-		return err
+		return dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
+	}
+	if exists != accessDetail.UserId {
+		return dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
 	}
 
 	if _, ok := token.Claims.(jwt.Claims); !ok && !token.Valid {
@@ -140,6 +143,10 @@ func extractToken(r *http.Request) string {
 
 func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 	var err error
+
+	if err := tokenValid(r); err != nil {
+		return nil, err
+	}
 
 	token, err := verifyToken(r)
 	if err != nil {

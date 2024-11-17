@@ -20,15 +20,17 @@ func NewAuthHandler(Action string) web.Use {
 }
 
 func (a *AuthHandler) Handle(c web.Context) error {
-	tokenData, _ := ExtractTokenMetadata(c.Request())
-
+	tokenData, err := ExtractTokenMetadata(c.Request())
+	if err != nil {
+		return err
+	}
 	// if tenant, no need to check permission
 	if tokenData.IsTenant {
 		return nil
 	}
 	roles := strings.Split(tokenData.Roles, ",")
 	path := c.Request().URL.Path
-	err := a.validationPermission(roles, a.Action, path)
+	err = a.validationPermission(roles, a.Action, path)
 	if err != nil {
 		return fmt.Errorf("failed to get permissions: %v", err)
 	}

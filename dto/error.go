@@ -23,6 +23,7 @@ var ERR_OTP_MAX = errCodeUser(1007, "Percobaan otp sudah lebih dari batas maksim
 var ERR_OTP_INVALID = errCodeUser(1007, "Otp tidak sesuai")
 var ERR_DATA_NOT_FOUND = errCodeUser(1008, "Error Data Not Found")
 var ERR_DATA_EXISTS = errCodeUser(1009, "Data Exists")
+var ERR_TOKEN_EXPIRED = errCodeUser(1005, "Invalid or expired token")
 
 type ErrorCustom struct {
 	CodeError int
