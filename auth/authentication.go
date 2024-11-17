@@ -140,6 +140,7 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 		if exist != accessDetail.UserId {
 			return nil, dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
 		}
+		return accessDetail, nil
 	}
 	return nil, err
 }
