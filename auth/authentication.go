@@ -78,32 +78,6 @@ func CreateAuth(userId string, td *dto.TokenDetails) error {
 	return err
 }
 
-func tokenValid(r *http.Request) error {
-	var err error
-	token, err := verifyToken(r)
-	if err != nil {
-		return err
-	}
-
-	accessDetail, err := ExtractTokenMetadata(r)
-	if err != nil {
-		return err
-	}
-
-	exists, err := fetchAuth(accessDetail)
-	if err != nil {
-		return dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
-	}
-	if exists != accessDetail.UserId {
-		return dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
-	}
-
-	if _, ok := token.Claims.(jwt.Claims); !ok && !token.Valid {
-		return err
-	}
-	return nil
-}
-
 func fetchAuth(authD *dto.AccessDetail) (string, error) {
 	var err error
 	redis, err := memory.NewRedisWrap()
@@ -143,11 +117,6 @@ func extractToken(r *http.Request) string {
 
 func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 	var err error
-
-	if err := tokenValid(r); err != nil {
-		return nil, err
-	}
-
 	token, err := verifyToken(r)
 	if err != nil {
 		return nil, err
@@ -155,7 +124,7 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
-		return &dto.AccessDetail{
+		accessDetail := &dto.AccessDetail{
 			AccessUuid: claims["access_uuid"].(string),
 			UserId:     claims["user_id"].(string),
 			Roles:      claims["roles"].(string),
@@ -163,7 +132,14 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 			Name:       claims["name"].(string),
 			ClientId:   claims["client_id"].(string),
 			IpAddress:  getIpAddress(r),
-		}, nil
+		}
+		exist, err := fetchAuth(accessDetail)
+		if err != nil {
+			return nil, err
+		}
+		if exist != accessDetail.UserId {
+			return nil, dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
+		}
 	}
 	return nil, err
 }
