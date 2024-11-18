@@ -1,6 +1,7 @@
 package web
 
 import (
+	"mime/multipart"
 	"net/http"
 )
 
@@ -25,6 +26,7 @@ type Context interface {
 	QueryFloat(key string) float64
 	Queries() map[string]string
 	AllParams() map[string]string
+	FormFile(key string) (*multipart.FileHeader, error)
 }
 
 type Use interface {

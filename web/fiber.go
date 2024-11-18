@@ -8,6 +8,7 @@ import (
 	"github.com/manjada/com/config"
 	_ "github.com/valyala/fasthttp"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 )
@@ -72,6 +73,10 @@ func (fc *FiberCtx) Queries() map[string]string {
 
 func (fc *FiberCtx) AllParams() map[string]string {
 	return fc.Ctx.AllParams()
+}
+
+func (fc *FiberCtx) FormFile(key string) (*multipart.FileHeader, error) {
+	return fc.Ctx.FormFile(key)
 }
 
 func (fc *FiberCtx) Request() *http.Request {
