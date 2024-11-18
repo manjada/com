@@ -114,3 +114,13 @@ func (b BaseRepoGorm) Delete(data interface{}) BaseRepoGorm {
 	b.DbRepo = b.DbRepo.Delete(data)
 	return b
 }
+
+func (b BaseRepoGorm) Offset(offset int) BaseRepoGorm {
+	b.DbRepo = b.DbRepo.Offset(offset)
+	return b
+}
+
+func (b BaseRepoGorm) Limit(limit int) BaseRepoGorm {
+	b.DbRepo = b.DbRepo.Limit(limit)
+	return b
+}

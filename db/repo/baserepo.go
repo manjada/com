@@ -18,4 +18,6 @@ type BaseRepoInterface interface {
 	Scan(data interface{}) BaseRepoGorm
 	Delete(data interface{}) BaseRepoGorm
 	Join(query string, args ...interface{}) BaseRepoGorm
+	Offset(offset int) BaseRepoGorm
+	Limit(limit int) BaseRepoGorm
 }
