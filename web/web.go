@@ -19,7 +19,10 @@ type Context interface {
 	JSON(code int, i interface{}) error
 	Request() *http.Request
 	Param(key string) string
-	Query(key string, typeData string) any
+	QueryStr(key string) string
+	QueryInt(key string) int
+	QueryBool(key string) bool
+	QueryFloat(key string) float64
 	Queries() map[string]string
 	AllParams() map[string]string
 }
