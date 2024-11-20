@@ -31,6 +31,7 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	atClaims.ClientId = user.ClientId
 	atClaims.IsTenant = user.IsTenant
 	atClaims.Name = user.Name
+	atClaims.IsTenant = user.IsTenant
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 
@@ -47,6 +48,7 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	rtClaims.ClientId = user.ClientId
 	rtClaims.IsTenant = user.IsTenant
 	rtClaims.Name = user.Name
+	rtClaims.TenantId = user.TenantId
 	rtClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.RefreshExpire}
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
 
