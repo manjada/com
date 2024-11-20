@@ -133,6 +133,7 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 			IsTenant:   claims["is_tenant"].(bool),
 			Name:       claims["name"].(string),
 			ClientId:   claims["client_id"].(string),
+			TenantId:   claims["tenant_id"].(string),
 			IpAddress:  getIpAddress(r),
 		}
 		exist, err := fetchAuth(accessDetail)

@@ -56,4 +56,5 @@ type AccessDetail struct {
 	IpAddress  string
 	Name       string
 	ClientId   string
+	TenantId   string
 }
