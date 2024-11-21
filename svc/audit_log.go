@@ -5,7 +5,6 @@ import (
 	"github.com/manjada/com/db"
 	"github.com/manjada/com/db/repo"
 	"github.com/manjada/com/dto"
-	repo2 "github.com/manjada/com/repo"
 )
 
 type AuditLogger interface {
@@ -54,7 +53,7 @@ func (a *AuditLogService) log(auth dto.AccessDetail, module, action string, data
 	if err != nil {
 		return err
 	}
-	auditLog := repo2.AuditLog{
+	auditLog := repo.AuditLog{
 		UserId:    auth.UserId,
 		Name:      auth.Name,
 		IpAddress: auth.IpAddress,

@@ -6,6 +6,7 @@ import (
 	"github.com/manjada/com/db"
 	"github.com/manjada/com/db/connection"
 	"gorm.io/gorm"
+	"reflect"
 )
 
 type BaseRepoGorm struct {
@@ -61,7 +62,14 @@ func (b BaseRepoGorm) Omit(tableName string) BaseRepoGorm {
 }
 
 func (b BaseRepoGorm) Create(data interface{}) BaseRepoGorm {
+	// Get the name of the struct
+	structName := reflect.TypeOf(data).Elem().Name()
+	// Check if data is of type TransactionModel and set ModuleName
+	if tm, ok := data.(*TransactionModel); ok {
+		tm.ModuleName = structName
+	}
 	b.DbRepo = b.DbRepo.Create(data)
+
 	return b
 }
 

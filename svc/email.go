@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/manjada/com/config"
 	"github.com/manjada/com/db"
+	repo2 "github.com/manjada/com/db/repo"
 	"github.com/manjada/com/dto"
-	repo2 "github.com/manjada/com/repo"
 	"gopkg.in/gomail.v2"
 	"regexp"
 )

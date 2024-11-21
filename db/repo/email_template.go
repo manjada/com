@@ -3,7 +3,6 @@ package repo
 import (
 	"github.com/manjada/com/config"
 	"github.com/manjada/com/db"
-	"github.com/manjada/com/db/repo"
 )
 
 type EmailTemplate struct {
@@ -16,7 +15,7 @@ type EmailTemplate struct {
 }
 
 type EmailTemplateRepo struct {
-	Db repo.BaseRepoGorm
+	Db BaseRepoGorm
 }
 
 func (e EmailTemplateRepo) GetEmailTemplateByKey(templateKey string) *EmailTemplate {
@@ -34,5 +33,5 @@ type EmailTemplateRepoInterface interface {
 }
 
 func NewEmailTemplateRepo(Db db.DBConnector) EmailTemplateRepoInterface {
-	return EmailTemplateRepo{Db: repo.NewBaseRepo(Db)}
+	return EmailTemplateRepo{Db: NewBaseRepo(Db)}
 }
