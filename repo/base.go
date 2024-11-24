@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+var excludeTable = []string{"module_menus", "roles", "approvals", "approval_details", "approval_transactions", "approval_transaction_details"}
+
 type TransactionModel struct {
 	Id        string         `gorm:"primaryKey type:varchar(255)"`
 	CreatedAt time.Time      `gorm:"index"`
@@ -25,6 +27,11 @@ func (receive *TransactionModel) BeforeUpdate(tx *gorm.DB) error {
 
 func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 	tableName := tx.Statement.Table
+	for _, data := range excludeTable {
+		if data == tableName {
+			return nil
+		}
+	}
 	config.Info(fmt.Sprintf("After Create Table Name: %s and check approval", tableName))
 	var data map[string]interface{}
 	tx.Table(tableName).Where("id = ?", receive.Id).First(&data)
@@ -34,7 +41,13 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 		config.Error(err)
 		return err
 	}
-	err = receive.buildApprovalTransaction(tx, tableName, data, dataBin)
+
+	clientId, ok := data["client_id"]
+	if !ok {
+		config.Error(errors.New("client_id not found"))
+		return errors.New("client_id not found")
+	}
+	err = receive.buildApprovalTransaction(tx, tableName, clientId.(string), dataBin)
 	if err != nil {
 		config.Error(err)
 		return err
@@ -42,12 +55,12 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName string, data map[string]interface{}, dataBin []byte) error {
+func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName string, clientId string, dataBin []byte) error {
 	var dataApproval []map[string]interface{}
 	err := tx.Table("approvals").
 		Select(`"approvals".id, "approval_details".approval_by, "approval_details".approval_name, "approval_details".client_id`).
 		Joins(`left join "approval_details".approval_id = "approvals".id`).
-		Where(`"approvals".module_menu_code = ? and "approval_details".client_id = ?`, tableName, data["client_id"].(string)).
+		Where(`"approvals".module_menu_code = ? and "approval_details".client_id = ?`, tableName, clientId).
 		Find(&dataApproval).Error
 	if err != nil {
 		return err
@@ -70,8 +83,8 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 	for _, datas := range dataApproval {
 		err = tx.Table("approval_transaction_details").Create(map[string]interface{}{
 			"approval_transaction_id": datas["id"],
-			"approval_by":             data["approval_by"],
-			"approval_by_name":        data["approval_by_name"],
+			"approval_by":             datas["approval_by"],
+			"approval_by_name":        datas["approval_by_name"],
 		}).Error
 
 		if err != nil {
