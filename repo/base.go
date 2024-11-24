@@ -34,7 +34,7 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 	}
 	config.Info(fmt.Sprintf("After Create Table Name: %s and check approval", tableName))
 	var data map[string]interface{}
-	tx.Table(tableName).Where("id = ?", receive.Id).First(&data)
+	tx.Table(tableName).Where("id = ?", receive.Id).Scan(&data)
 	var dataBin []byte
 	dataBin, err := json.Marshal(&data)
 	if err != nil {
@@ -61,7 +61,7 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 		Select(`"approvals".id, "approval_details".approval_by, "approval_details".approval_name, "approval_details".client_id`).
 		Joins(`left join "approval_details".approval_id = "approvals".id`).
 		Where(`"approvals".module_menu_code = ? and "approval_details".client_id = ?`, tableName, clientId).
-		Find(&dataApproval).Error
+		Scan(&dataApproval).Error
 	if err != nil {
 		return err
 	}
