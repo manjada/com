@@ -44,13 +44,8 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 
 	clientId, ok := data["client_id"]
 	if !ok {
-		if tableName == "clients" {
-			clientId = data["id"]
-		} else {
-			config.Error(errors.New("client_id not found"))
-			return errors.New("client_id not found")
-		}
-
+		config.Error(errors.New("client_id not found"))
+		return errors.New("client_id not found")
 	}
 	err = receive.buildApprovalTransaction(tx, tableName, clientId.(string), dataBin)
 	if err != nil {
