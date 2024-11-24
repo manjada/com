@@ -3,7 +3,8 @@ package repo
 import (
 	"encoding/json"
 	"errors"
-	"github.com/manjada/com/dto"
+	"fmt"
+	"github.com/manjada/com/config"
 	"github.com/oklog/ulid"
 	"gorm.io/gorm"
 	"math/rand"
@@ -24,17 +25,18 @@ func (receive *TransactionModel) BeforeUpdate(tx *gorm.DB) error {
 
 func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 	tableName := tx.Statement.Table
+	config.Info(fmt.Sprintf("After Create Table Name: %s and check approval", tableName))
 	var data map[string]interface{}
 	tx.Table(tableName).Where("id = ?", receive.Id).First(&data)
 	var dataBin []byte
 	dataBin, err := json.Marshal(&data)
 	if err != nil {
-		dto.ErrorDb(err)
+		config.Error(err)
 		return err
 	}
 	err = receive.buildApprovalTransaction(tx, tableName, data, dataBin)
 	if err != nil {
-		dto.ErrorDb(err)
+		config.Error(err)
 		return err
 	}
 	return nil
