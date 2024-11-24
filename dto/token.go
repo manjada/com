@@ -13,6 +13,7 @@ type UserToken struct {
 	Roles    string
 	IsTenant bool
 	ClientId string
+	TenantId string
 }
 
 type TokenDetails struct {
@@ -33,6 +34,7 @@ type CustomClaims struct {
 	ClientId    string `json:"client_id"`
 	IsTenant    bool   `json:"is_tenant"`
 	Name        string `json:"name"`
+	TenantId    string `json:"tenant_id"`
 	jwt.StandardClaims
 }
 
@@ -54,4 +56,5 @@ type AccessDetail struct {
 	IpAddress  string
 	Name       string
 	ClientId   string
+	TenantId   string
 }
