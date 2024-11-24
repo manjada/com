@@ -64,7 +64,7 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 	var dataApproval []map[string]interface{}
 	err := tx.Table("approvals").
 		Select(`"approvals".id, "approval_details".approval_by, "approval_details".approval_name, "approval_details".client_id`).
-		Joins(`left join "approval_details".approval_id = "approvals".id`).
+		Joins(`join approval_details on "approvals".id = "approval_details".approval_id`).
 		Where(`"approvals".module_menu_code = ? and "approval_details".client_id = ?`, tableName, clientId).
 		Scan(&dataApproval).Error
 	if err != nil {
