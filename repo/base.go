@@ -80,14 +80,12 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 	}
 
 	for _, datas := range dataApproval {
-		err = tx.Table("approval_transaction_details").Create(map[string]interface{}{
-			"id":                      receive.generateUlid().String(),
-			"created_at":              time.Now(),
-			"updated_at":              time.Now(),
-			"approval_transaction_id": approvalTransactionID,
-			"approval_by":             datas["approval_by"],
-			"approval_by_name":        datas["approval_by_name"],
-		}).Error
+		var approvalTransactionDetailID string
+		err = tx.Raw(`
+    INSERT INTO approval_transaction_details (id, created_at, updated_at, approval_transaction_id, approval_by, approval_by_name)
+    VALUES (?, ?, ?, ?, ?, ?)
+    RETURNING id
+`, receive.generateUlid().String(), time.Now(), time.Now(), approvalTransactionID, datas["approval_by"], datas["approval_by_name"]).Scan(&approvalTransactionDetailID).Error
 
 		if err != nil {
 			return err
