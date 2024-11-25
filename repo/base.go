@@ -69,19 +69,12 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 	if len(dataApproval) == 0 {
 		return errors.New("approval not found")
 	}
-	err = tx.Table("approval_transactions").Create(map[string]interface{}{
-		"id":             receive.generateUlid().String(),
-		"created_at":     time.Now(),
-		"updated_at":     time.Now(),
-		"approval_id":    dataApproval[0]["id"],
-		"client_id":      dataApproval[0]["client_id"],
-		"module_code":    dataApproval[0]["module_code"],
-		"status":         "Pending",
-		"reference_id":   receive.Id,
-		"total_approval": len(dataApproval),
-		"type":           dataApproval[0]["type"],
-		"data":           string(dataBin),
-	}).Error
+	var approvalTransactionID string
+	err = tx.Raw(`
+    INSERT INTO approval_transactions (id, created_at, updated_at, approval_id, client_id, module_code, status, reference_id, total_approval, type, data)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    RETURNING id
+`, receive.generateUlid().String(), time.Now(), time.Now(), dataApproval[0]["id"], dataApproval[0]["client_id"], dataApproval[0]["module_code"], "Pending", receive.Id, len(dataApproval), dataApproval[0]["type"], string(dataBin)).Scan(&approvalTransactionID).Error
 	if err != nil {
 		return err
 	}
@@ -91,7 +84,7 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 			"id":                      receive.generateUlid().String(),
 			"created_at":              time.Now(),
 			"updated_at":              time.Now(),
-			"approval_transaction_id": datas["id"],
+			"approval_transaction_id": approvalTransactionID,
 			"approval_by":             datas["approval_by"],
 			"approval_by_name":        datas["approval_by_name"],
 		}).Error
