@@ -66,6 +66,9 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 		return err
 	}
 
+	if len(dataApproval) == 0 {
+		return errors.New("approval not found")
+	}
 	err = tx.Table("approval_transactions").Create(map[string]interface{}{
 		"approval_id":    dataApproval[0]["id"],
 		"client_id":      dataApproval[0]["client_id"],
