@@ -70,6 +70,9 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 		return errors.New("approval not found")
 	}
 	err = tx.Table("approval_transactions").Create(map[string]interface{}{
+		"id":             receive.generateUlid(),
+		"created_at":     time.Now(),
+		"updated_at":     time.Now(),
 		"approval_id":    dataApproval[0]["id"],
 		"client_id":      dataApproval[0]["client_id"],
 		"module_code":    dataApproval[0]["module_code"],
@@ -85,6 +88,9 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 
 	for _, datas := range dataApproval {
 		err = tx.Table("approval_transaction_details").Create(map[string]interface{}{
+			"id":                      receive.generateUlid(),
+			"created_at":              time.Now(),
+			"updated_at":              time.Now(),
 			"approval_transaction_id": datas["id"],
 			"approval_by":             datas["approval_by"],
 			"approval_by_name":        datas["approval_by_name"],
@@ -98,9 +104,7 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 }
 
 func (receive *TransactionModel) BeforeCreate(tx *gorm.DB) error {
-	t := time.Now()
-	entropy := ulid.Monotonic(rand.New(rand.NewSource(t.UnixNano())), 0)
-	id := ulid.MustNew(ulid.Timestamp(t), entropy)
+	id := receive.generateUlid()
 
 	if receive.Id == "" {
 		receive.Id = id.String()
@@ -108,4 +112,11 @@ func (receive *TransactionModel) BeforeCreate(tx *gorm.DB) error {
 		return errors.New("can't save invalid data")
 	}
 	return nil
+}
+
+func (receive *TransactionModel) generateUlid() ulid.ULID {
+	t := time.Now()
+	entropy := ulid.Monotonic(rand.New(rand.NewSource(t.UnixNano())), 0)
+	id := ulid.MustNew(ulid.Timestamp(t), entropy)
+	return id
 }
