@@ -71,8 +71,6 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 	}
 	err = tx.Table("approval_transactions").Create(map[string]interface{}{
 		"id":             receive.generateUlid(),
-		"created_at":     time.Now(),
-		"updated_at":     time.Now(),
 		"approval_id":    dataApproval[0]["id"],
 		"client_id":      dataApproval[0]["client_id"],
 		"module_code":    dataApproval[0]["module_code"],
@@ -89,8 +87,6 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 	for _, datas := range dataApproval {
 		err = tx.Table("approval_transaction_details").Create(map[string]interface{}{
 			"id":                      receive.generateUlid(),
-			"created_at":              time.Now(),
-			"updated_at":              time.Now(),
 			"approval_transaction_id": datas["id"],
 			"approval_by":             datas["approval_by"],
 			"approval_by_name":        datas["approval_by_name"],
