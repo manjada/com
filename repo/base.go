@@ -73,7 +73,7 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 	var approvalTransactionID string
 	err = tx.Raw(`
     INSERT INTO approval_transactions (id, created_at, updated_at, approval_id, client_id, module_code, module_name, status, reference_id, total_approval, type, data)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
 `, receive.generateUlid().String(), time.Now(), time.Now(), dataApproval[0]["id"], dataApproval[0]["client_id"], dataApproval[0]["module_menu_code"], dataApproval[0]["module_menu_name"], "Pending", receive.Id, len(dataApproval), dataApproval[0]["type"], string(dataBin)).Scan(&approvalTransactionID).Error
 	if err != nil {
