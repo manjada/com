@@ -58,7 +58,8 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName string, clientId string, dataBin []byte) error {
 	var dataApproval []map[string]interface{}
 	err := tx.Table("approvals").
-		Select(`"approvals".id, "approval_details".approval_by, "approval_details".approval_name, "approval_details".client_id`).
+		Select(`"approvals".id, "approval_details".approval_by, "approval_details".approval_name, "approval_details".client_id,
+"approvals".module_menu_name, "approvals".module_menu_code`).
 		Joins(`join approval_details on "approvals".id = "approval_details".approval_id`).
 		Where(`"approvals".module_menu_code = ? and "approval_details".client_id = ?`, tableName, clientId).
 		Scan(&dataApproval).Error
@@ -71,10 +72,10 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 	}
 	var approvalTransactionID string
 	err = tx.Raw(`
-    INSERT INTO approval_transactions (id, created_at, updated_at, approval_id, client_id, module_code, status, reference_id, total_approval, type, data)
+    INSERT INTO approval_transactions (id, created_at, updated_at, approval_id, client_id, module_code, module_name, status, reference_id, total_approval, type, data, )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     RETURNING id
-`, receive.generateUlid().String(), time.Now(), time.Now(), dataApproval[0]["id"], dataApproval[0]["client_id"], dataApproval[0]["module_code"], "Pending", receive.Id, len(dataApproval), dataApproval[0]["type"], string(dataBin)).Scan(&approvalTransactionID).Error
+`, receive.generateUlid().String(), time.Now(), time.Now(), dataApproval[0]["id"], dataApproval[0]["client_id"], dataApproval[0]["module_menu_code"], dataApproval[0]["module_menu_name"], "Pending", receive.Id, len(dataApproval), dataApproval[0]["type"], string(dataBin)).Scan(&approvalTransactionID).Error
 	if err != nil {
 		return err
 	}
