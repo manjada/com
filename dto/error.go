@@ -103,8 +103,8 @@ func ErrorUser(data ErrorCustom, s string) *ErrorCustom {
 	return &data
 }
 
-func ErrCodeUser(code int, desc string) ErrorCustom {
-	return ErrorCustom{
+func ErrCodeUser(code int, desc string) *ErrorCustom {
+	return &ErrorCustom{
 		CodeError: code,
 		Desc:      desc,
 	}
