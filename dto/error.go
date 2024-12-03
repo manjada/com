@@ -14,17 +14,17 @@ const (
 	readFileErrorCode = 1002
 )
 
-var ERR_INVALID_EMAIL_FORMAT = errCodeUser(1003, "Invalid Email Format")
-var ERR_PARSE_JSON = errCodeUser(1004, "Invalid json provided")
-var ERR_VALIDATE_REQUIRED = errCodeUser(1005, "Field Required")
-var ERR_USER_NOT_FOUND = errCodeUser(1005, "user or password is wrong")
-var ERR_SYSTEM = errCodeUser(1006, "An error occurred in the system, please try again or contact the administrator")
-var ERR_OTP_MAX = errCodeUser(1007, "Percobaan otp sudah lebih dari batas maksimal silahkan request otp kembali")
-var ERR_OTP_INVALID = errCodeUser(1007, "Otp tidak sesuai")
-var ERR_DATA_NOT_FOUND = errCodeUser(1008, "Error Data Not Found")
-var ERR_DATA_EXISTS = errCodeUser(1009, "Data Exists")
-var ERR_TOKEN_EXPIRED = errCodeUser(1010, "Invalid or expired token")
-var ERR_UNAUTHORIZED = errCodeUser(1011, "Unauthorized access")
+var ERR_INVALID_EMAIL_FORMAT = ErrCodeUser(1003, "Invalid Email Format")
+var ERR_PARSE_JSON = ErrCodeUser(1004, "Invalid json provided")
+var ERR_VALIDATE_REQUIRED = ErrCodeUser(1005, "Field Required")
+var ERR_USER_NOT_FOUND = ErrCodeUser(1005, "user or password is wrong")
+var ERR_SYSTEM = ErrCodeUser(1006, "An error occurred in the system, please try again or contact the administrator")
+var ERR_OTP_MAX = ErrCodeUser(1007, "Percobaan otp sudah lebih dari batas maksimal silahkan request otp kembali")
+var ERR_OTP_INVALID = ErrCodeUser(1007, "Otp tidak sesuai")
+var ERR_DATA_NOT_FOUND = ErrCodeUser(1008, "Error Data Not Found")
+var ERR_DATA_EXISTS = ErrCodeUser(1009, "Data Exists")
+var ERR_TOKEN_EXPIRED = ErrCodeUser(1010, "Invalid or expired token")
+var ERR_UNAUTHORIZED = ErrCodeUser(1011, "Unauthorized access")
 
 type ErrorCustom struct {
 	CodeError int
@@ -103,7 +103,7 @@ func ErrorUser(data ErrorCustom, s string) *ErrorCustom {
 	return &data
 }
 
-func errCodeUser(code int, desc string) ErrorCustom {
+func ErrCodeUser(code int, desc string) ErrorCustom {
 	return ErrorCustom{
 		CodeError: code,
 		Desc:      desc,
