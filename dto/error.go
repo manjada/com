@@ -96,11 +96,11 @@ func ErrorSystem(err error) *SystemError {
 	return &SystemError{"Error from system", err.Error(), dbErrorCode}
 }
 
-func ErrorUser(data ErrorCustom, s string) *ErrorCustom {
+func ErrorUser(data *ErrorCustom, s string) *ErrorCustom {
 	if s != "" {
 		data.Desc = s
 	}
-	return &data
+	return data
 }
 
 func ErrCodeUser(code int, desc string) *ErrorCustom {
