@@ -124,3 +124,7 @@ func (b BaseRepoGorm) Limit(limit int) BaseRepoGorm {
 	b.DbRepo = b.DbRepo.Limit(limit)
 	return b
 }
+
+func (b BaseRepoGorm) Association(column string, data interface{}) error {
+	return b.DbRepo.Association(column).Replace(data)
+}

@@ -20,4 +20,5 @@ type BaseRepoInterface interface {
 	Join(query string, args ...interface{}) BaseRepoGorm
 	Offset(offset int) BaseRepoGorm
 	Limit(limit int) BaseRepoGorm
+	Association(column string, data interface{}) error
 }
