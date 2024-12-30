@@ -54,8 +54,13 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 		return err
 	}
 
-	tableName = tableName[:len(tableName)-1]
-	err = svc.NewEmailService().SendEmail(data, emails, tableName+"_approval", nil, "", "", clientId.(string))
+	var bodyMail string
+	tx.Table(EmailTemplate{}.TableName()).Where("template_key = ?", "approval_"+tableName).Select("body").Scan(&bodyMail)
+	if bodyMail == "" {
+		config.Info("email template not found")
+	}
+
+	err = svc.NewEmailService().SendEmail(data, emails, tableName+"_approval", nil, "", bodyMail, clientId.(string))
 	if err != nil {
 		config.Error(err)
 		return err

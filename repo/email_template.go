@@ -16,6 +16,10 @@ type EmailTemplate struct {
 	ClientId    string `gorm:"column:client_id;varchar(255)"`
 }
 
+func (EmailTemplate) TableName() string {
+	return "email_templates"
+}
+
 type EmailTemplateRepo struct {
 	Db repo.BaseRepoGorm
 }
