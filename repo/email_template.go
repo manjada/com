@@ -8,21 +8,22 @@ import (
 
 type EmailTemplate struct {
 	TransactionModel
-	Name        string `json:"name" gorm:"column:name"`
-	Subject     string `json:"subject" gorm:"column:subject"`
-	Body        string `json:"body" gorm:"column:body"`
-	IsActive    bool   `json:"is_active" gorm:"column:is_active"`
-	TemplateKey string `json:"template_key" gorm:"column:template_key"`
+	Name        string `gorm:"column:name;varchar(255)"`
+	Subject     string `gorm:"column:subject;varchar(255)"`
+	Body        string `gorm:"column:body"`
+	IsActive    bool   `gorm:"column:is_active"`
+	TemplateKey string `gorm:"column:template_key;varchar(255)"`
+	ClientId    string `gorm:"column:client_id;varchar(255)"`
 }
 
 type EmailTemplateRepo struct {
 	Db repo.BaseRepoGorm
 }
 
-func (e EmailTemplateRepo) GetEmailTemplateByKey(templateKey string) *EmailTemplate {
+func (e EmailTemplateRepo) GetEmailTemplateByKeyAndClientId(templateKey string, clientId string) *EmailTemplate {
 	//TODO implement me
 	var emailTemplate EmailTemplate
-	if err := e.Db.Where(`template_key = ?`, templateKey).First(&emailTemplate).DbRepo.Error; err != nil {
+	if err := e.Db.Where(`template_key = ? and client_id = ?`, templateKey, clientId).First(&emailTemplate).DbRepo.Error; err != nil {
 		config.Error(err)
 		return nil
 	}
@@ -30,7 +31,7 @@ func (e EmailTemplateRepo) GetEmailTemplateByKey(templateKey string) *EmailTempl
 }
 
 type EmailTemplateRepoInterface interface {
-	GetEmailTemplateByKey(templateKey string) *EmailTemplate
+	GetEmailTemplateByKeyAndClientId(templateKey string, clientId string) *EmailTemplate
 }
 
 func NewEmailTemplateRepo(Db db.DBConnector) EmailTemplateRepoInterface {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/manjada/com/config"
+	"github.com/manjada/com/svc"
 	"github.com/oklog/ulid"
 	"gorm.io/gorm"
 	"math/rand"
@@ -47,15 +48,22 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 		config.Error(errors.New("client_id not found"))
 		return errors.New("client_id not found")
 	}
-	err = receive.buildApprovalTransaction(tx, tableName, clientId.(string), dataBin)
+	err, emails := receive.buildApprovalTransaction(tx, tableName, clientId.(string), dataBin)
 	if err != nil && err.Error() != "approval not found" {
+		config.Error(err)
+		return err
+	}
+
+	tableName = tableName[:len(tableName)-1]
+	err = svc.NewEmailService().SendEmail(data, emails, tableName+"_approval", nil, "", "", clientId.(string))
+	if err != nil {
 		config.Error(err)
 		return err
 	}
 	return nil
 }
 
-func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName string, clientId string, dataBin []byte) error {
+func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName string, clientId string, dataBin []byte) (error, []string) {
 	var dataApproval []map[string]interface{}
 	err := tx.Table("approvals").
 		Select(`"approvals".id, "approval_details".approval_by, "approval_details".approval_name, "approval_details".client_id,
@@ -64,11 +72,11 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 		Where(`"approvals".module_menu_code = ? and "approval_details".client_id = ?`, tableName, clientId).
 		Scan(&dataApproval).Error
 	if err != nil {
-		return err
+		return err, nil
 	}
 
 	if len(dataApproval) == 0 {
-		return errors.New("approval not found")
+		return errors.New("approval not found"), nil
 	}
 	var approvalTransactionID string
 	err = tx.Raw(`
@@ -77,9 +85,10 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
     RETURNING id
 `, receive.generateUlid().String(), time.Now(), time.Now(), dataApproval[0]["id"], dataApproval[0]["client_id"], dataApproval[0]["module_menu_code"], dataApproval[0]["module_menu_name"], "Pending", receive.Id, len(dataApproval), dataApproval[0]["type"], string(dataBin)).Scan(&approvalTransactionID).Error
 	if err != nil {
-		return err
+		return err, nil
 	}
 
+	emails := []string{}
 	for _, datas := range dataApproval {
 		var approvalTransactionDetailID string
 		err = tx.Raw(`
@@ -89,10 +98,13 @@ func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName
 `, receive.generateUlid().String(), time.Now(), time.Now(), approvalTransactionID, datas["approval_by"], datas["approval_by_name"]).Scan(&approvalTransactionDetailID).Error
 
 		if err != nil {
-			return err
+			return err, nil
 		}
+		var email string
+		tx.Table("users").Select("email").Where("id = ?", datas["approval_by"]).Scan(&email)
+		emails = append(emails, email)
 	}
-	return nil
+	return nil, emails
 }
 
 func (receive *TransactionModel) BeforeCreate(tx *gorm.DB) error {

@@ -3,9 +3,6 @@ package svc
 import (
 	"fmt"
 	"github.com/manjada/com/config"
-	"github.com/manjada/com/db"
-	"github.com/manjada/com/dto"
-	repo2 "github.com/manjada/com/repo"
 	"gopkg.in/gomail.v2"
 	"regexp"
 )
@@ -13,29 +10,25 @@ import (
 var dialer *gomail.Dialer
 
 type EmailServiceInterface interface {
-	SendEmail(data map[string]interface{}, to []string, templateKey string, from string, cc []string, attachment string) error
+	SendEmail(data map[string]interface{}, to []string, templateKey string, from string, cc []string, attachment string, clientId string) error
 }
 
 type EmailService struct {
-	EmailRepo repo2.EmailTemplateRepoInterface
 }
 
-func NewEmailService(Db db.DBConnector) EmailServiceInterface {
+func NewEmailService() *EmailService {
 	if dialer == nil {
 		getConfig := config.GetConfig()
 		dialer = gomail.NewDialer(
 			getConfig.Smtp.Host, getConfig.Smtp.Port, getConfig.Smtp.User, getConfig.Smtp.Password)
 
 	}
-	return &EmailService{EmailRepo: repo2.NewEmailTemplateRepo(Db)}
+	return &EmailService{}
 }
 
-func (e EmailService) SendEmail(data map[string]interface{}, to []string, templateKey string, from string, cc []string, attachment string) error {
-	emailTemplate := e.EmailRepo.GetEmailTemplateByKey(templateKey)
-	if emailTemplate == nil {
-		return dto.ErrorParse(fmt.Errorf("email template not found"))
-	}
-	body := e.parseEmailBody(emailTemplate.Body, data)
+func (e EmailService) SendEmail(data map[string]interface{}, to []string, from string, cc []string, attachment string, body string, subject string) error {
+
+	body = e.parseEmailBody(body, data)
 	fmt.Println("Sending email to", to, "with body", body)
 
 	m := gomail.NewMessage()
@@ -45,7 +38,7 @@ func (e EmailService) SendEmail(data map[string]interface{}, to []string, templa
 		m.SetHeader("Cc", cc...)
 	}
 
-	m.SetHeader("Subject", emailTemplate.Subject)
+	m.SetHeader("Subject", subject)
 	m.SetBody("text/html", body)
 	if attachment != "" {
 		m.Attach(attachment)
