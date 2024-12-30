@@ -33,6 +33,12 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 			return nil
 		}
 	}
+	var IsNeedApproval bool
+	tx.Model("module_menus").Where("module_code = ?", tableName).Select("is_need_approval").Scan(&IsNeedApproval)
+	if !IsNeedApproval {
+		config.Info(fmt.Sprintf("Approval not needed for table: %s", tableName))
+		return nil
+	}
 	config.Info(fmt.Sprintf("After Create Table Name: %s and check approval", tableName))
 	var data map[string]interface{}
 	tx.Table(tableName).Where("id = ?", receive.Id).Scan(&data)
