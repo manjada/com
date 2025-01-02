@@ -33,9 +33,10 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 			return nil
 		}
 	}
-	var IsNeedApproval bool
-	tx.Table("module_menus").Where("menu_code = ?", tableName).Select("is_need_approval").Scan(&IsNeedApproval)
-	if !IsNeedApproval {
+
+	var count int64
+	tx.Table("module_menus").Where("menu_code = ?", tableName).Count(&count)
+	if count == 0 {
 		config.Info(fmt.Sprintf("Approval not needed for table: %s", tableName))
 		return nil
 	}
