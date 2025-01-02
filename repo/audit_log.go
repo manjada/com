@@ -8,6 +8,7 @@ import (
 )
 
 type AuditLog struct {
+	TransactionModel
 	UserId    string
 	Name      string
 	IpAddress string
