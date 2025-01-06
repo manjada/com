@@ -21,6 +21,11 @@ func NewEmailService() *EmailService {
 		getConfig := config.GetConfig()
 		dialer = gomail.NewDialer(
 			getConfig.Smtp.Host, getConfig.Smtp.Port, getConfig.Smtp.User, getConfig.Smtp.Password)
+		if dialer.Port == 465 {
+			dialer.SSL = true
+		} else {
+			dialer.SSL = false
+		}
 
 	}
 	return &EmailService{}
