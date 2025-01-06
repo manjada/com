@@ -67,7 +67,7 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 		config.Info("email template not found")
 	}
 
-	err = svc.NewEmailService().SendEmail(data, emails, tableName+"_approval", nil, "", bodyMail, clientId.(string))
+	err = svc.NewEmailService().SendEmail(data, emails, config.GetConfig().Smtp.User, nil, "", bodyMail, clientId.(string))
 	if err != nil {
 		config.Error(err)
 		return err
