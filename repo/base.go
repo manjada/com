@@ -34,11 +34,19 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 		}
 	}
 
+	err2, done := receive.approvalProcess(tx, tableName)
+	if done {
+		return err2
+	}
+	return nil
+}
+
+func (receive *TransactionModel) approvalProcess(tx *gorm.DB, tableName string) (error, bool) {
 	var count int64
 	tx.Table("module_menus").Where("menu_code = ?", tableName).Count(&count)
 	if count == 0 {
 		config.Info(fmt.Sprintf("Approval not needed for table: %s", tableName))
-		return nil
+		return nil, true
 	}
 	config.Info(fmt.Sprintf("After Create Table Name: %s and check approval", tableName))
 	var data map[string]interface{}
@@ -47,32 +55,32 @@ func (receive *TransactionModel) AfterCreate(tx *gorm.DB) error {
 	dataBin, err := json.Marshal(&data)
 	if err != nil {
 		config.Error(err)
-		return err
+		return err, true
 	}
 
 	clientId, ok := data["client_id"]
 	if !ok {
 		config.Error(errors.New("client_id not found"))
-		return errors.New("client_id not found")
+		return errors.New("client_id not found"), true
 	}
 	err, emails := receive.buildApprovalTransaction(tx, tableName, clientId.(string), dataBin)
 	if err != nil && err.Error() != "approval not found" {
 		config.Error(err)
-		return err
+		return err, true
 	}
 
-	var bodyMail string
-	tx.Table(EmailTemplate{}.TableName()).Where("template_key = ?", "approval_"+tableName).Select("body").Scan(&bodyMail)
-	if bodyMail == "" {
+	var template EmailTemplate
+	tx.Table(EmailTemplate{}.TableName()).Where("template_key = ?", "approval_"+tableName).First(&template)
+	if template.Id == "" {
 		config.Info("email template not found")
 	}
 
-	err = svc.NewEmailService().SendEmail(data, emails, config.GetConfig().Smtp.User, nil, "", bodyMail, clientId.(string))
+	err = svc.NewEmailService().SendEmail(data, emails, config.GetConfig().Smtp.User, nil, "", template.Body, template.Subject)
 	if err != nil {
 		config.Error(err)
-		return err
+		return err, true
 	}
-	return nil
+	return nil, false
 }
 
 func (receive *TransactionModel) buildApprovalTransaction(tx *gorm.DB, tableName string, clientId string, dataBin []byte) (error, []string) {

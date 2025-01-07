@@ -55,9 +55,9 @@ func (e EmailService) SendEmail(data map[string]interface{}, to []string, from s
 	return nil
 }
 
-func (e EmailService) parseEmailBody(body string, data map[string]interface{}) string {
-	re := regexp.MustCompile(`\${{(\w+)}}`)
-	return re.ReplaceAllStringFunc(body, func(match string) string {
+func (e EmailService) parseEmailBody(template string, data map[string]interface{}) string {
+	re := regexp.MustCompile(`\{\{(\w+)\}\}`)
+	return re.ReplaceAllStringFunc(template, func(match string) string {
 		key := re.FindStringSubmatch(match)[1]
 		if val, ok := data[key]; ok {
 			return val.(string)
