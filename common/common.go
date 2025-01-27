@@ -1,4 +1,4 @@
-package mjd
+package common
 
 import (
 	"crypto/rand"
