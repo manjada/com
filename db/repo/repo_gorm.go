@@ -125,6 +125,11 @@ func (b BaseRepoGorm) Limit(limit int) BaseRepoGorm {
 	return b
 }
 
+func (b BaseRepoGorm) Or(query interface{}, args ...interface{}) BaseRepoGorm {
+	b.DbRepo = b.DbRepo.Or(query, args...)
+	return b
+}
+
 func (b BaseRepoGorm) Association(column string, data interface{}) error {
 	return b.DbRepo.Association(column).Replace(data)
 }

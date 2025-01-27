@@ -21,4 +21,5 @@ type BaseRepoInterface interface {
 	Offset(offset int) BaseRepoGorm
 	Limit(limit int) BaseRepoGorm
 	Association(column string, data interface{}) error
+	Or(query interface{}, args ...interface{}) BaseRepoGorm
 }
