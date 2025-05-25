@@ -42,6 +42,7 @@ type Config struct {
 		Timezone string `mapstructure:"timezone"`
 		Debug    bool   `mapstructure:"debug"`
 		Type     string `mapstructure:"type"`
+		Orm      string `mapstructure:"orm"`
 	} `mapstructure:"db_config"`
 
 	NoSqlConfig struct {
