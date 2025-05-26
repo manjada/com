@@ -133,7 +133,8 @@ func (a *PostgresNativeAdapter) First(dest interface{}) error {
 		return fmt.Errorf("TableName method not found on type %s", destValue.Type().Name())
 	}
 
-	tableName := method.Func.Call([]reflect.Value{reflect.ValueOf(dest)})[0].String()
+	// tableName := method.Func.Call([]reflect.Value{reflect.ValueOf(dest)})[0].String()
+	tableName := method.Func.Call([]reflect.Value{destValue.Addr()})[0].String()
 
 	// Append LIMIT 1 to the query
 	query := fmt.Sprintf("SELECT * FROM %s %s LIMIT 1", tableName, a.query)
