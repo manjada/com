@@ -3,12 +3,16 @@ package native
 import (
 	"database/sql"
 	"fmt"
+	_interface "github.com/manjada/com/db_adapter/interface"
 	"reflect"
 	"strings"
 )
 
 type PostgresNativeAdapter struct {
-	db *sql.DB
+	db        *sql.DB
+	query     string
+	args      []interface{}
+	tableName string
 }
 
 func NewPostgresAdapter(dsn string) (*PostgresNativeAdapter, error) {
@@ -91,6 +95,42 @@ func (a *PostgresNativeAdapter) Create(data interface{}) error {
 	_, err := a.db.Exec(insertSQL, values...)
 	if err != nil {
 		return fmt.Errorf("failed to execute Create: %w", err)
+	}
+
+	return nil
+}
+
+func (a *PostgresNativeAdapter) Where(query interface{}, args ...interface{}) _interface.DBAdapter {
+	// Build the WHERE clause
+	whereClause, ok := query.(string)
+	if !ok {
+		panic("Where expects a string query")
+	}
+
+	// Store the query and arguments for later execution
+	a.query = fmt.Sprintf("SELECT * FROM %s WHERE %s", a.tableName, whereClause)
+	a.args = args
+	return a
+}
+
+func (a *PostgresNativeAdapter) First(dest interface{}) error {
+	// Append LIMIT 1 to the query
+	query := a.query + " LIMIT 1"
+
+	// Execute the query
+	row := a.db.QueryRow(query, a.args...)
+
+	// Map the result to the destination struct
+	destValue := reflect.ValueOf(dest).Elem()
+	destType := destValue.Type()
+
+	columns := make([]interface{}, destType.NumField())
+	for i := 0; i < destType.NumField(); i++ {
+		columns[i] = destValue.Field(i).Addr().Interface()
+	}
+
+	if err := row.Scan(columns...); err != nil {
+		return fmt.Errorf("failed to execute First: %w", err)
 	}
 
 	return nil

@@ -2,6 +2,7 @@ package gorm
 
 import (
 	"github.com/manjada/com/config"
+	_interface "github.com/manjada/com/db_adapter/interface"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -28,4 +29,13 @@ func (a *PostgresGormAdapter) AutoMigrate(data interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func (a *PostgresGormAdapter) Where(query interface{}, args ...interface{}) _interface.DBAdapter {
+	a.db = a.db.Where(query, args...)
+	return a
+}
+
+func (a *PostgresGormAdapter) First(dest interface{}) error {
+	return a.db.First(dest).Error
 }
