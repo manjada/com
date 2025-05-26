@@ -122,20 +122,9 @@ func (a *PostgresNativeAdapter) Where(query interface{}, args ...interface{}) _i
 }
 
 func (a *PostgresNativeAdapter) First(dest interface{}) error {
-	// Ensure dest is a pointer to a struct
-	destValue := reflect.ValueOf(dest)
-	if destValue.Kind() != reflect.Ptr || destValue.Elem().Kind() != reflect.Struct {
-		return fmt.Errorf("dest must be a pointer to a struct")
-	}
-
-	// Get the TableName method
-	method, ok := destValue.Elem().Type().MethodByName("TableName")
-	if !ok {
-		return fmt.Errorf("TableName method not found on type %s", destValue.Elem().Type().Name())
-	}
-
-	// Call the TableName method
-	tableName := method.Func.Call([]reflect.Value{destValue.Elem().Addr()})[0].String()
+	// Infer the table name from the type of the destination struct
+	destType := reflect.TypeOf(dest).Elem()
+	tableName := strings.ToLower(destType.Name()) + "s" // Assuming table name is pluralized
 
 	// Append LIMIT 1 to the query
 	query := fmt.Sprintf("SELECT * FROM %s %s LIMIT 1", tableName, a.query)
@@ -144,8 +133,7 @@ func (a *PostgresNativeAdapter) First(dest interface{}) error {
 	row := a.db.QueryRow(query, a.args...)
 
 	// Map the result to the destination struct
-	destType := destValue.Elem().Type()
-	destValue = destValue.Elem()
+	destValue := reflect.ValueOf(dest).Elem()
 	var columns []interface{}
 
 	// Recursively map fields, including embedded structs
