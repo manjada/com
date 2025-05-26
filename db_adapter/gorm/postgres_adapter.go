@@ -8,7 +8,8 @@ import (
 )
 
 type PostgresGormAdapter struct {
-	db *gorm.DB
+	db        *gorm.DB
+	initialDB *gorm.DB
 }
 
 func NewPostgresGormAdapter(dsn string) (*PostgresGormAdapter, error) {
@@ -19,7 +20,7 @@ func NewPostgresGormAdapter(dsn string) (*PostgresGormAdapter, error) {
 	if config.GetConfig().DbConfig.Debug {
 		db = db.Debug()
 	}
-	return &PostgresGormAdapter{db: db}, nil
+	return &PostgresGormAdapter{db: db, initialDB: db}, nil
 }
 
 func (a *PostgresGormAdapter) AutoMigrate(data interface{}) error {
@@ -31,12 +32,13 @@ func (a *PostgresGormAdapter) AutoMigrate(data interface{}) error {
 }
 
 func (a *PostgresGormAdapter) Where(query interface{}, args ...interface{}) _interface.DBAdapter {
-	a.db = a.db.Where(query, args...)
-	return a
+	newAdapter := *a // copy struct
+	newAdapter.db = a.db.Where(query, args...)
+	return &newAdapter
 }
 
 func (a *PostgresGormAdapter) resetDB() {
-	a.db = a.db.Session(&gorm.Session{})
+	a.db = a.initialDB.Session(&gorm.Session{})
 }
 
 func (a *PostgresGormAdapter) First(dest interface{}) error {
@@ -48,6 +50,5 @@ func (a *PostgresGormAdapter) First(dest interface{}) error {
 }
 
 func (a *PostgresGormAdapter) Create(data interface{}) error {
-	a.resetDB() // Reset the DB instance before the operation
 	return a.db.Create(data).Error
 }
