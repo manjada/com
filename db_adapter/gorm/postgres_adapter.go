@@ -22,10 +22,6 @@ func NewPostgresGormAdapter(dsn string) (*PostgresGormAdapter, error) {
 	return &PostgresGormAdapter{db: db}, nil
 }
 
-func (a *PostgresGormAdapter) Create(data interface{}) error {
-	return a.db.Create(data).Error
-}
-
 func (a *PostgresGormAdapter) AutoMigrate(data interface{}) error {
 	if err := a.db.AutoMigrate(data); err != nil {
 		config.Error(err)
@@ -39,6 +35,18 @@ func (a *PostgresGormAdapter) Where(query interface{}, args ...interface{}) _int
 	return a
 }
 
+func (a *PostgresGormAdapter) resetDB() {
+	a.db = a.db.Session(&gorm.Session{})
+}
+
 func (a *PostgresGormAdapter) First(dest interface{}) error {
-	return a.db.First(dest).Error
+	// Execute the query on the current *gorm.DB instance
+	err := a.db.First(dest).Error
+	// Reset the *gorm.DB instance after the operation
+	a.resetDB()
+	return err
+}
+
+func (a *PostgresGormAdapter) Create(data interface{}) error {
+	return a.db.Create(data).Error
 }
