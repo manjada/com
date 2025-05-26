@@ -25,10 +25,16 @@ func NewPostgresAdapter(dsn string) (*PostgresNativeAdapter, error) {
 }
 
 func (a *PostgresNativeAdapter) AutoMigrate(data interface{}) error {
+	// Dereference the pointer if the input is a pointer
+	dataValue := reflect.ValueOf(data)
+	if dataValue.Kind() == reflect.Ptr {
+		dataValue = dataValue.Elem()
+	}
+
 	// Get the type of the data
-	dataType := reflect.TypeOf(data)
+	dataType := dataValue.Type()
 	if dataType.Kind() != reflect.Struct {
-		return fmt.Errorf("AutoMigrate expects a struct, got %s", dataType.Kind())
+		return fmt.Errorf("AutoMigrate expects a struct or pointer to a struct, got %s", dataType.Kind())
 	}
 
 	// Start building the CREATE TABLE statement
@@ -105,31 +111,35 @@ func (a *PostgresNativeAdapter) Where(query interface{}, args ...interface{}) _i
 	// Build the WHERE clause
 	whereClause, ok := query.(string)
 	if !ok {
+		// Return a meaningful error instead of panicking
 		panic("Where expects a string query")
 	}
 
 	// Store the query and arguments for later execution
-	a.query = fmt.Sprintf("SELECT * FROM %s WHERE %s", a.tableName, whereClause)
+	a.query = fmt.Sprintf("WHERE %s", whereClause)
 	a.args = args
 	return a
 }
 
 func (a *PostgresNativeAdapter) First(dest interface{}) error {
+	// Infer the table name from the type of the destination struct
+	destType := reflect.TypeOf(dest).Elem()
+	tableName := strings.ToLower(destType.Name())
+
 	// Append LIMIT 1 to the query
-	query := a.query + " LIMIT 1"
+	query := fmt.Sprintf("SELECT * FROM %s %s LIMIT 1", tableName, a.query)
 
 	// Execute the query
 	row := a.db.QueryRow(query, a.args...)
 
 	// Map the result to the destination struct
 	destValue := reflect.ValueOf(dest).Elem()
-	destType := destValue.Type()
-
 	columns := make([]interface{}, destType.NumField())
 	for i := 0; i < destType.NumField(); i++ {
 		columns[i] = destValue.Field(i).Addr().Interface()
 	}
 
+	// Handle errors from row.Scan
 	if err := row.Scan(columns...); err != nil {
 		return fmt.Errorf("failed to execute First: %w", err)
 	}
