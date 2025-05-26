@@ -48,5 +48,6 @@ func (a *PostgresGormAdapter) First(dest interface{}) error {
 }
 
 func (a *PostgresGormAdapter) Create(data interface{}) error {
+	a.db = a.resetDB() // Ensure a fresh DB instance before creating
 	return a.db.Create(data).Error
 }
