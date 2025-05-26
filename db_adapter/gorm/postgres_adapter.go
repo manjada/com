@@ -35,19 +35,19 @@ func (a *PostgresGormAdapter) Where(query interface{}, args ...interface{}) _int
 	return a
 }
 
-func (a *PostgresGormAdapter) resetDB() *gorm.DB {
-	return a.db.Session(&gorm.Session{})
+func (a *PostgresGormAdapter) resetDB() {
+	a.db = a.db.Session(&gorm.Session{})
 }
 
 func (a *PostgresGormAdapter) First(dest interface{}) error {
 	// Execute the query on the current *gorm.DB instance
 	err := a.db.First(dest).Error
 	// Reset the *gorm.DB instance after the operation
-	a.db = a.resetDB() // Reset the DB instance after the operation
+	a.resetDB() // Reset the DB instance after the operation
 	return err
 }
 
 func (a *PostgresGormAdapter) Create(data interface{}) error {
-	a.db = a.resetDB() // Ensure a fresh DB instance before creating
+	a.resetDB() // Reset the DB instance before the operation
 	return a.db.Create(data).Error
 }
