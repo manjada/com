@@ -3,6 +3,7 @@ package native
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/lib/pq"
 	_interface "github.com/manjada/com/db_adapter/interface"
 	"reflect"
 	"strings"
