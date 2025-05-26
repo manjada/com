@@ -134,10 +134,25 @@ func (a *PostgresNativeAdapter) First(dest interface{}) error {
 
 	// Map the result to the destination struct
 	destValue := reflect.ValueOf(dest).Elem()
-	columns := make([]interface{}, destType.NumField())
-	for i := 0; i < destType.NumField(); i++ {
-		columns[i] = destValue.Field(i).Addr().Interface()
+	var columns []interface{}
+
+	// Recursively map fields, including embedded structs
+	var mapFields func(reflect.Value, reflect.Type)
+	mapFields = func(value reflect.Value, typ reflect.Type) {
+		for i := 0; i < typ.NumField(); i++ {
+			field := typ.Field(i)
+			fieldValue := value.Field(i)
+
+			if field.Anonymous && fieldValue.Kind() == reflect.Struct {
+				// Handle embedded struct
+				mapFields(fieldValue, fieldValue.Type())
+			} else {
+				columns = append(columns, fieldValue.Addr().Interface())
+			}
+		}
 	}
+
+	mapFields(destValue, destType)
 
 	// Handle errors from row.Scan
 	if err := row.Scan(columns...); err != nil {
