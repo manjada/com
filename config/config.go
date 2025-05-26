@@ -43,7 +43,6 @@ type Config struct {
 		Debug    bool   `mapstructure:"debug"`
 		Type     string `mapstructure:"type"`
 		Orm      string `mapstructure:"orm"`
-		Dsn      string `mapstructure:"dsn"`
 	} `mapstructure:"db_config"`
 
 	NoSqlConfig struct {
