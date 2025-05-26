@@ -16,6 +16,9 @@ func NewPostgresGormAdapter(dsn string) (*PostgresGormAdapter, error) {
 	if err != nil {
 		return nil, err
 	}
+	if config.GetConfig().DbConfig.Debug {
+		db = db.Debug()
+	}
 	return &PostgresGormAdapter{db: db}, nil
 }
 
