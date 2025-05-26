@@ -129,6 +129,11 @@ func (a *PostgresNativeAdapter) First(dest interface{}) error {
 	// Append LIMIT 1 to the query
 	query := fmt.Sprintf("SELECT * FROM %s %s LIMIT 1", tableName, a.query)
 
+	// Replace placeholders with PostgreSQL-style ($1, $2, ...)
+	for i := range a.args {
+		query = strings.Replace(query, "?", fmt.Sprintf("$%d", i+1), 1)
+	}
+
 	// Execute the query
 	row := a.db.QueryRow(query, a.args...)
 
