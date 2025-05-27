@@ -5,7 +5,9 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	_interface "github.com/manjada/com/db_adapter/interface"
+	"github.com/oklog/ulid"
 	"gorm.io/gorm"
+	"math/rand"
 	"reflect"
 	"strings"
 	"time"
@@ -119,6 +121,16 @@ func (a *PostgresNativeAdapter) Create(data interface{}) error {
 		return fmt.Errorf("Create expects a struct or pointer to a struct, got %s", dataValue.Kind())
 	}
 
+	// Generate UUID for the Id field if it exists and is empty
+	idField := dataValue.FieldByName("Id")
+	if idField.IsValid() && idField.CanSet() && idField.Kind() == reflect.String && idField.String() == "" {
+		newUUID, err := generateUUID()
+		if err != nil {
+			return fmt.Errorf("failed to generate UUID: %w", err)
+		}
+		idField.SetString(newUUID)
+	}
+
 	// Prepare the INSERT statement
 	dataType := dataValue.Type()
 	tableName := a.tableName
@@ -229,4 +241,12 @@ func (a *PostgresNativeAdapter) First(dest interface{}) error {
 	}
 
 	return nil
+}
+
+// Utility function to generate a UUID
+func generateUUID() (string, error) {
+	t := time.Now()
+	entropy := ulid.Monotonic(rand.New(rand.NewSource(t.UnixNano())), 0)
+	id := ulid.MustNew(ulid.Timestamp(t), entropy).String()
+	return id, nil
 }
