@@ -88,7 +88,7 @@ func (a *PostgresNativeAdapter) Create(data interface{}) error {
 
 	// Prepare the INSERT statement
 	dataType := dataValue.Type()
-	tableName := strings.ToLower(dataType.Name())
+	tableName := strings.ToLower(dataType.Name()) + "s"
 	var columns []string
 	var placeholders []string
 	var values []interface{}
