@@ -93,13 +93,26 @@ func (a *PostgresNativeAdapter) Create(data interface{}) error {
 	var placeholders []string
 	var values []interface{}
 
-	for i := 0; i < dataType.NumField(); i++ {
-		field := dataType.Field(i)
-		columnName := strings.ToLower(field.Name)
-		columns = append(columns, columnName)
-		placeholders = append(placeholders, fmt.Sprintf("$%d", i+1))
-		values = append(values, dataValue.Field(i).Interface())
+	// Recursively map fields, including embedded structs
+	var mapFields func(reflect.Value, reflect.Type)
+	mapFields = func(value reflect.Value, typ reflect.Type) {
+		for i := 0; i < typ.NumField(); i++ {
+			field := typ.Field(i)
+			fieldValue := value.Field(i)
+
+			if field.Anonymous && fieldValue.Kind() == reflect.Struct {
+				// Handle embedded struct
+				mapFields(fieldValue, fieldValue.Type())
+			} else {
+				columnName := strings.ToLower(field.Name)
+				columns = append(columns, columnName)
+				placeholders = append(placeholders, fmt.Sprintf("$%d", len(values)+1))
+				values = append(values, fieldValue.Interface())
+			}
+		}
 	}
+
+	mapFields(dataValue, dataType)
 
 	insertSQL := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", tableName, strings.Join(columns, ", "), strings.Join(placeholders, ", "))
 
