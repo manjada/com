@@ -104,7 +104,7 @@ func (a *PostgresNativeAdapter) Create(data interface{}) error {
 				// Handle embedded struct
 				mapFields(fieldValue, fieldValue.Type())
 			} else {
-				columnName := strings.ToLower(field.Name)
+				columnName := camelToSnake(field.Name) // Convert to snake_case
 				columns = append(columns, columnName)
 				placeholders = append(placeholders, fmt.Sprintf("$%d", len(values)+1))
 				values = append(values, fieldValue.Interface())
@@ -123,6 +123,18 @@ func (a *PostgresNativeAdapter) Create(data interface{}) error {
 	}
 
 	return nil
+}
+
+// Utility function to convert camelCase to snake_case
+func camelToSnake(s string) string {
+	var result []rune
+	for i, r := range s {
+		if i > 0 && r >= 'A' && r <= 'Z' {
+			result = append(result, '_')
+		}
+		result = append(result, r)
+	}
+	return strings.ToLower(string(result))
 }
 
 func (a *PostgresNativeAdapter) Where(query interface{}, args ...interface{}) _interface.DBAdapter {
