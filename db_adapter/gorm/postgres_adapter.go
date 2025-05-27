@@ -31,6 +31,12 @@ func (a *PostgresGormAdapter) AutoMigrate(data interface{}) error {
 	return nil
 }
 
+func (a *PostgresGormAdapter) Table(tableName string) _interface.DBAdapter {
+	newAdapter := *a // copy struct
+	newAdapter.db = a.db.Table(tableName)
+	return &newAdapter
+}
+
 func (a *PostgresGormAdapter) Where(query interface{}, args ...interface{}) _interface.DBAdapter {
 	newAdapter := *a // copy struct
 	newAdapter.db = a.db.Where(query, args...)

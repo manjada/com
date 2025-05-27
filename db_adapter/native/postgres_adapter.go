@@ -24,6 +24,12 @@ func NewPostgresAdapter(dsn string) (*PostgresNativeAdapter, error) {
 	return &PostgresNativeAdapter{db: db}, nil
 }
 
+func (a *PostgresNativeAdapter) Table(tableName string) _interface.DBAdapter {
+	newAdapter := *a // copy struct
+	newAdapter.tableName = tableName
+	return &newAdapter
+}
+
 func (a *PostgresNativeAdapter) AutoMigrate(data interface{}) error {
 	// Dereference the pointer if the input is a pointer
 	dataValue := reflect.ValueOf(data)
@@ -38,7 +44,7 @@ func (a *PostgresNativeAdapter) AutoMigrate(data interface{}) error {
 	}
 
 	// Start building the CREATE TABLE statement
-	tableName := strings.ToLower(dataType.Name())
+	tableName := a.tableName
 	var columns []string
 
 	for i := 0; i < dataType.NumField(); i++ {
@@ -88,7 +94,7 @@ func (a *PostgresNativeAdapter) Create(data interface{}) error {
 
 	// Prepare the INSERT statement
 	dataType := dataValue.Type()
-	tableName := strings.ToLower(dataType.Name()) + "s"
+	tableName := a.tableName
 	var columns []string
 	var placeholders []string
 	var values []interface{}
@@ -154,7 +160,7 @@ func (a *PostgresNativeAdapter) Where(query interface{}, args ...interface{}) _i
 func (a *PostgresNativeAdapter) First(dest interface{}) error {
 	// Infer the table name from the type of the destination struct
 	destType := reflect.TypeOf(dest).Elem()
-	tableName := strings.ToLower(destType.Name()) + "s" // Assuming table name is pluralized
+	tableName := a.tableName
 
 	// Append LIMIT 1 to the query
 	query := fmt.Sprintf("SELECT * FROM %s %s LIMIT 1", tableName, a.query)

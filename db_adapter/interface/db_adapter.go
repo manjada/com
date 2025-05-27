@@ -5,4 +5,5 @@ type DBAdapter interface {
 	Create(data interface{}) error
 	Where(query interface{}, args ...interface{}) DBAdapter
 	First(dest interface{}) error
+	Table(tableName string) DBAdapter
 }
