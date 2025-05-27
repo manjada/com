@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	_interface "github.com/manjada/com/db_adapter/interface"
+	"gorm.io/gorm"
 	"reflect"
 	"strings"
 	"time"
@@ -75,7 +76,7 @@ func (a *PostgresNativeAdapter) AutoMigrate(data interface{}) error {
 				case reflect.Bool:
 					columnType = "BOOLEAN"
 				case reflect.Struct:
-					if field.Type == reflect.TypeOf(time.Time{}) || field.Type == reflect.TypeOf(sql.NullTime{}) {
+					if field.Type == reflect.TypeOf(time.Time{}) || field.Type == reflect.TypeOf(sql.NullTime{}) || field.Type == reflect.TypeOf(gorm.DeletedAt{}) {
 						columnType = "TIMESTAMPTZ"
 					} else {
 						columnType = "TEXT" // Default for other structs
