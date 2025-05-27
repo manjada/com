@@ -99,26 +99,40 @@ func (a *PostgresNativeAdapter) Create(data interface{}) error {
 	var placeholders []string
 	var values []interface{}
 
-	// Recursively map fields, including embedded structs
-	var mapFields func(reflect.Value, reflect.Type)
-	mapFields = func(value reflect.Value, typ reflect.Type) {
+	var mapFields func(reflect.Type)
+	mapFields = func(typ reflect.Type) {
 		for i := 0; i < typ.NumField(); i++ {
 			field := typ.Field(i)
-			fieldValue := value.Field(i)
 
-			if field.Anonymous && fieldValue.Kind() == reflect.Struct {
-				// Handle embedded struct
-				mapFields(fieldValue, fieldValue.Type())
+			// Check if the field is an embedded struct
+			if field.Anonymous && field.Type.Kind() == reflect.Struct {
+				// Recursively process the embedded struct
+				mapFields(field.Type)
 			} else {
-				columnName := camelToSnake(field.Name) // Convert to snake_case
-				columns = append(columns, columnName)
-				placeholders = append(placeholders, fmt.Sprintf("$%d", len(values)+1))
-				values = append(values, fieldValue.Interface())
+				// Convert field name to snake_case
+				columnName := camelToSnake(field.Name)
+				columnType := "TEXT" // Default to TEXT, can be extended for other types
+
+				// Check for field type and map to SQL types
+				switch field.Type.Kind() {
+				case reflect.Int, reflect.Int32, reflect.Int64:
+					columnType = "INTEGER"
+				case reflect.Float32, reflect.Float64:
+					columnType = "REAL"
+				case reflect.Bool:
+					columnType = "BOOLEAN"
+				default:
+					columnType = "VARCHAR(255)"
+				}
+
+				// Add column definition
+				columns = append(columns, fmt.Sprintf("%s %s", columnName, columnType))
 			}
 		}
 	}
 
-	mapFields(dataValue, dataType)
+	// Start processing the fields of the main struct
+	mapFields(dataType)
 
 	insertSQL := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", tableName, strings.Join(columns, ", "), strings.Join(placeholders, ", "))
 
