@@ -75,13 +75,19 @@ func (a *PostgresNativeAdapter) AutoMigrate(data interface{}) error {
 }
 
 func (a *PostgresNativeAdapter) Create(data interface{}) error {
-	// Get the type of the data
-	dataType := reflect.TypeOf(data)
-	if dataType.Kind() != reflect.Struct {
-		return fmt.Errorf("Create expects a struct, got %s", dataType.Kind())
+	// Dereference the pointer if the input is a pointer
+	dataValue := reflect.ValueOf(data)
+	if dataValue.Kind() == reflect.Ptr {
+		dataValue = dataValue.Elem()
+	}
+
+	// Ensure the input is a struct
+	if dataValue.Kind() != reflect.Struct {
+		return fmt.Errorf("Create expects a struct or pointer to a struct, got %s", dataValue.Kind())
 	}
 
 	// Prepare the INSERT statement
+	dataType := dataValue.Type()
 	tableName := strings.ToLower(dataType.Name())
 	var columns []string
 	var placeholders []string
@@ -92,8 +98,7 @@ func (a *PostgresNativeAdapter) Create(data interface{}) error {
 		columnName := strings.ToLower(field.Name)
 		columns = append(columns, columnName)
 		placeholders = append(placeholders, fmt.Sprintf("$%d", i+1))
-		value := reflect.ValueOf(data).FieldByName(field.Name).Interface()
-		values = append(values, value)
+		values = append(values, dataValue.Field(i).Interface())
 	}
 
 	insertSQL := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", tableName, strings.Join(columns, ", "), strings.Join(placeholders, ", "))
