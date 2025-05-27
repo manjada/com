@@ -75,7 +75,7 @@ func (a *PostgresNativeAdapter) AutoMigrate(data interface{}) error {
 				case reflect.Bool:
 					columnType = "BOOLEAN"
 				case reflect.Struct:
-					if field.Type == reflect.TypeOf(time.Time{}) {
+					if field.Type == reflect.TypeOf(time.Time{}) || field.Type == reflect.TypeOf(sql.NullTime{}) {
 						columnType = "TIMESTAMPTZ"
 					} else {
 						columnType = "TEXT" // Default for other structs
