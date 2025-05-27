@@ -214,7 +214,8 @@ func (a *PostgresNativeAdapter) First(dest interface{}) error {
 			if field.Anonymous && fieldValue.Kind() == reflect.Struct {
 				// Handle embedded struct
 				mapFields(fieldValue, fieldValue.Type())
-			} else {
+			} else if fieldValue.CanAddr() {
+				// Add addressable fields to columns
 				columns = append(columns, fieldValue.Addr().Interface())
 			}
 		}
