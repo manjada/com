@@ -7,6 +7,7 @@ import (
 	_interface "github.com/manjada/com/db_adapter/interface"
 	"reflect"
 	"strings"
+	"time"
 )
 
 type PostgresNativeAdapter struct {
@@ -73,6 +74,13 @@ func (a *PostgresNativeAdapter) AutoMigrate(data interface{}) error {
 					columnType = "REAL"
 				case reflect.Bool:
 					columnType = "BOOLEAN"
+				case reflect.Struct:
+					if field.Type == reflect.TypeOf(time.Time{}) {
+						columnType = "TIMESTAMPTZ"
+					} else {
+						columnType = "TEXT" // Default for other structs
+					}
+
 				default:
 					columnType = "VARCHAR(255)"
 				}
