@@ -31,8 +31,8 @@ type CustomClaims struct {
 }
 
 func (receiver *TokenDetails) CreateTokenDetails() {
-	tokenExpire := time.Duration(config.GetConfig().AppHost.TokenExpire) * time.Minute
-	tokenRefreshExpire := time.Duration(config.GetConfig().AppHost.TokenRefreshExpire) * time.Minute
+	tokenExpire := time.Duration(config.GetConfig().AppJwt.TokenExpire) * time.Minute
+	tokenRefreshExpire := time.Duration(config.GetConfig().AppJwt.TokenRefreshExpire) * time.Minute
 	receiver.AccessExpire = time.Now().Add(tokenExpire).Unix()
 	receiver.AccessUuid = uuid.New().String()
 	receiver.RefreshExpire = time.Now().Add(tokenRefreshExpire).Unix()

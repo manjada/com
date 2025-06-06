@@ -121,9 +121,9 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 		accessDetail := &dto.AccessDetail{
 			AccessUuid: claims["access_uuid"].(string),
 			UserId:     claims["user_id"].(string),
-			Roles:      claims["roles"].(string),
-			Name:       claims["name"].(string),
-			IpAddress:  getIpAddress(r),
+			//Roles:      claims["roles"].(string),
+			Name:      claims["name"].(string),
+			IpAddress: getIpAddress(r),
 		}
 		exist, err := fetchAuth(accessDetail)
 		if err != nil {
