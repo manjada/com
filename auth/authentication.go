@@ -52,6 +52,62 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	return td, nil
 }
 
+func RefreshToken(refreshToken string) (*dto.TokenDetails, error) {
+	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
+		//Make sure that the token method conform to "SigningMethodHMAC"
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(config.GetConfig().AppJwt.RefreshSecret), nil
+	})
+	//if there is an error, the token must have expired
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok && token.Valid {
+		refreshUuid, ok := claims["refresh_uuid"].(string)
+		if !ok {
+			return nil, err
+		}
+		userId, ok := claims["user_id"].(string)
+		if !ok {
+			return nil, err
+		}
+		//Delete the previous Refresh Token
+		delErr := DeleteAuth(refreshUuid)
+		if delErr != nil { //if any goes wrong
+			return nil, delErr
+		}
+		//Create new pairs of refresh and access tokens
+		ts, createErr := CreateToken(dto.UserToken{Id: userId})
+		if createErr != nil {
+			return nil, createErr
+		}
+		//save the tokens metadata to redis
+		saveErr := CreateAuth(userId, ts)
+		if saveErr != nil {
+			return nil, saveErr
+		}
+
+		return ts, nil
+	} else {
+		return nil, err
+	}
+}
+
+func DeleteAuth(givenUuid string) error {
+	var err error
+	redis, err := memory.NewRedisWrap()
+	if err != nil {
+		return err
+	}
+	err = redis.Delete(context.Background(), givenUuid)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func CreateAuth(userId string, td *dto.TokenDetails) error {
 	var err error
 	at := time.Unix(td.AccessExpire, 0)
