@@ -12,6 +12,12 @@ type PostgresGormAdapter struct {
 	initialDB *gorm.DB
 }
 
+func (a *PostgresGormAdapter) Limit(limit int) _interface.DBAdapter {
+	newAdapter := *a // copy struct
+	newAdapter.db = a.db.Limit(limit)
+	return &newAdapter
+}
+
 func NewPostgresGormAdapter(dsn string) (*PostgresGormAdapter, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

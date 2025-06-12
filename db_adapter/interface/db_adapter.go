@@ -8,4 +8,5 @@ type DBAdapter interface {
 	Table(tableName string) DBAdapter
 	Order(order string) DBAdapter
 	Count(count *int64) error
+	Limit(limit int) DBAdapter
 }

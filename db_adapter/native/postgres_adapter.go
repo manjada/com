@@ -196,6 +196,49 @@ func (a *PostgresNativeAdapter) Where(query interface{}, args ...interface{}) _i
 	return a
 }
 
+func (a *PostgresNativeAdapter) Order(order string) _interface.DBAdapter {
+	// Append the ORDER BY clause to the existing query
+	if a.query == "" {
+		a.query = fmt.Sprintf("ORDER BY %s", order)
+	} else {
+		a.query += fmt.Sprintf(" ORDER BY %s", order)
+	}
+	return a
+}
+
+func (a *PostgresNativeAdapter) Limit(limit int) _interface.DBAdapter {
+	// Append the LIMIT clause to the existing query
+	if a.query == "" {
+		a.query = fmt.Sprintf("LIMIT %d", limit)
+	} else {
+		a.query += fmt.Sprintf(" LIMIT %d", limit)
+	}
+	return a
+}
+
+func (a *PostgresNativeAdapter) Count(count *int64) error {
+	// Infer the table name from the adapter's tableName field
+	tableName := a.tableName
+
+	// Build the COUNT query
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s %s", tableName, a.query)
+
+	// Replace placeholders with PostgreSQL-style ($1, $2, ...)
+	for i := range a.args {
+		query = strings.Replace(query, "?", fmt.Sprintf("$%d", i+1), 1)
+	}
+
+	// Execute the query
+	row := a.db.QueryRow(query, a.args...)
+
+	// Scan the result into the count variable
+	if err := row.Scan(count); err != nil {
+		return fmt.Errorf("failed to execute Count: %w", err)
+	}
+
+	return nil
+}
+
 func (a *PostgresNativeAdapter) First(dest interface{}) error {
 	// Infer the table name from the type of the destination struct
 	destType := reflect.TypeOf(dest).Elem()
