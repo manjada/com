@@ -58,3 +58,13 @@ func (a *PostgresGormAdapter) First(dest interface{}) error {
 func (a *PostgresGormAdapter) Create(data interface{}) error {
 	return a.db.Create(data).Error
 }
+
+func (a *PostgresGormAdapter) Order(order string) _interface.DBAdapter {
+	newAdapter := *a // copy struct
+	newAdapter.db = a.db.Order(order)
+	return &newAdapter
+}
+
+func (a *PostgresGormAdapter) Count(count *int64) error {
+	return a.db.Count(count).Error
+}
