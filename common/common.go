@@ -6,6 +6,7 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/manjada/com/config"
 	"github.com/manjada/com/dto"
+	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -95,4 +96,18 @@ func GenerateOTP(length int) (string, error) {
 	}
 	fmt.Println(string(buffer))
 	return string(buffer), nil
+}
+
+// HashOTP securely hashes the OTP using bcrypt.
+func HashOTP(otp string) (string, error) {
+	hashedOtp, err := bcrypt.GenerateFromPassword([]byte(otp), bcrypt.DefaultCost)
+	if err != nil {
+		return "", fmt.Errorf("failed to hash OTP: %v", err)
+	}
+	return string(hashedOtp), nil
+}
+
+// VerifyOTP compares a hashed OTP with a plain OTP.
+func VerifyOTP(hashedOtp, plainOtp string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedOtp), []byte(plainOtp))
 }

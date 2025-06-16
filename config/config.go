@@ -80,6 +80,10 @@ type Config struct {
 		User string `mapstructure:"user"`
 		Pass string `mapstructure:"pass"`
 	} `mapstructure:"message"`
+
+	Util struct {
+		OtpDuration int `mapstructure:"otp_duration"`
+	} `mapstructure:"util"`
 }
 
 func init() {
