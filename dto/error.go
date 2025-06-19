@@ -25,6 +25,7 @@ var ERR_DATA_NOT_FOUND = ErrCodeUser(1008, "Error Data Not Found")
 var ERR_DATA_EXISTS = ErrCodeUser(1009, "Data Exists")
 var ERR_TOKEN_EXPIRED = ErrCodeUser(1010, "Invalid or expired token")
 var ERR_UNAUTHORIZED = ErrCodeUser(1011, "Unauthorized access")
+var MAX_RETRY_OTP = ErrCodeUser(1012, "Maximum OTP attempts exceeded, please try again later")
 
 type ErrorCustom struct {
 	CodeError int

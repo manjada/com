@@ -21,6 +21,15 @@ type RedisInterface interface {
 	Delete(ctx context.Context, key string) error
 	GetInt(ctx context.Context, key string) (int, error)
 	GetBoolean(ctx context.Context, key string) (bool, error)
+	Increment(ctx context.Context, key string) (int64, error)
+}
+
+func (r RedisWrap) Increment(ctx context.Context, key string) (int64, error) {
+	val, err := redisClient.Incr(ctx, key).Result()
+	if err != nil {
+		return 0, err
+	}
+	return val, nil
 }
 
 func NewRedisWrap() (*RedisWrap, error) {
