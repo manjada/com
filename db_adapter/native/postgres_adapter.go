@@ -20,6 +20,16 @@ type PostgresNativeAdapter struct {
 	tableName string
 }
 
+func (a *PostgresNativeAdapter) Update(data interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (a *PostgresNativeAdapter) UpdateColumn(data interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewPostgresAdapter(dsn string) (*PostgresNativeAdapter, error) {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {

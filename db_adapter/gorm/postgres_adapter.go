@@ -12,6 +12,22 @@ type PostgresGormAdapter struct {
 	initialDB *gorm.DB
 }
 
+func (a *PostgresGormAdapter) UpdateColumn(data interface{}) error {
+	if err := a.db.Updates(data).Error; err != nil {
+		config.Error(err)
+		return err
+	}
+	return nil
+}
+
+func (a *PostgresGormAdapter) Update(data interface{}) error {
+	if err := a.db.Save(data).Error; err != nil {
+		config.Error(err)
+		return err
+	}
+	return nil
+}
+
 func (a *PostgresGormAdapter) Limit(limit int) _interface.DBAdapter {
 	newAdapter := *a // copy struct
 	newAdapter.db = a.db.Limit(limit)

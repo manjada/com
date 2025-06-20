@@ -9,4 +9,6 @@ type DBAdapter interface {
 	Order(order string) DBAdapter
 	Count(count *int64) error
 	Limit(limit int) DBAdapter
+	Update(data interface{}) error
+	UpdateColumn(data interface{}) error
 }
