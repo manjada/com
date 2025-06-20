@@ -21,14 +21,23 @@ type RedisInterface interface {
 	Delete(ctx context.Context, key string) error
 	GetInt(ctx context.Context, key string) (int, error)
 	GetBoolean(ctx context.Context, key string) (bool, error)
-	Increment(ctx context.Context, key string) (int64, error)
+	Increment(ctx context.Context, key string, duration ...time.Duration) (int64, error)
 }
 
-func (r RedisWrap) Increment(ctx context.Context, key string) (int64, error) {
+func (r RedisWrap) Increment(ctx context.Context, key string, duration ...time.Duration) (int64, error) {
 	val, err := redisClient.Incr(ctx, key).Result()
 	if err != nil {
 		return 0, err
 	}
+
+	// Set expiration if duration is provided
+	if len(duration) > 0 && duration[0] > 0 {
+		err = redisClient.PExpire(ctx, key, duration[0]).Err()
+		if err != nil {
+			return 0, err
+		}
+	}
+
 	return val, nil
 }
 
