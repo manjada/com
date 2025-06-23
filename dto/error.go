@@ -45,13 +45,6 @@ type CustomErrorInterface interface {
 
 func (o *SystemError) InvalidResponse(c web.Context) error {
 	if o != nil {
-		if o.CodeError == 1010 { //token expired
-			return c.JSON(http.StatusUnauthorized, Response{
-				Status:    http.StatusUnauthorized,
-				ErrorCode: o.Code(),
-				Message:   o.Error(),
-			})
-		}
 		return c.JSON(http.StatusBadRequest, Response{
 			Status:    http.StatusBadRequest,
 			ErrorCode: o.Code(),
@@ -63,6 +56,13 @@ func (o *SystemError) InvalidResponse(c web.Context) error {
 
 func (o *ErrorCustom) InvalidResponse(c web.Context) error {
 	if o != nil {
+		if o.CodeError == 1010 { //token expired
+			return c.JSON(http.StatusUnauthorized, Response{
+				Status:    http.StatusUnauthorized,
+				ErrorCode: o.Code(),
+				Message:   o.Error(),
+			})
+		}
 		return c.JSON(http.StatusBadRequest, Response{
 			Status:    http.StatusBadRequest,
 			ErrorCode: o.Code(),
