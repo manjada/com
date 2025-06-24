@@ -15,7 +15,8 @@ import (
 )
 
 const (
-	CSRF_KEY = "csrf_token"
+	CSRF_KEY    = "csrf_token"
+	auth_memory = "auth_" // This is a placeholder, replace with actual memory package import if needed
 )
 
 func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
@@ -74,6 +75,17 @@ func RefreshToken(refreshToken string) (*dto.TokenDetails, error) {
 		if !ok {
 			return nil, err
 		}
+		accessDetail := &dto.AccessDetail{
+			AccessUuid: refreshUuid,
+		}
+		userIdAuth, err := fetchRefreshAuth(accessDetail)
+		if err != nil {
+			return nil, err
+		}
+		if userIdAuth != userId {
+			return nil, dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
+		}
+
 		//Delete the previous Refresh Token
 		delErr := DeleteAuth(refreshUuid)
 		if delErr != nil { //if any goes wrong
@@ -116,12 +128,12 @@ func CreateAuth(userId string, td *dto.TokenDetails) error {
 	redis, err := memory.NewRedisWrap()
 	atTime := at.Sub(now)
 	rtTime := rt.Sub(now)
-	err = redis.Set(context.Background(), td.AccessUuid, userId, &atTime)
+	err = redis.Set(context.Background(), fmt.Sprintf("%s_init_%s", auth_memory, td.AccessUuid), userId, &atTime)
 	if err != nil {
 		return err
 	}
 
-	err = redis.Set(context.Background(), td.RefreshUuid, userId, &rtTime)
+	err = redis.Set(context.Background(), fmt.Sprintf("%s_refresh_%s", auth_memory, td.RefreshUuid), userId, &rtTime)
 	if err != nil {
 		return err
 	}
@@ -134,7 +146,18 @@ func fetchAuth(authD *dto.AccessDetail) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	userId := redis.GetString(context.Background(), authD.AccessUuid)
+	userId := redis.GetString(context.Background(), fmt.Sprintf("%s_init_%s", auth_memory, authD.AccessUuid))
+
+	return userId, nil
+}
+
+func fetchRefreshAuth(authD *dto.AccessDetail) (string, error) {
+	var err error
+	redis, err := memory.NewRedisWrap()
+	if err != nil {
+		return "", err
+	}
+	userId := redis.GetString(context.Background(), fmt.Sprintf("%s_refresh_%s", auth_memory, authD.AccessUuid))
 
 	return userId, nil
 }
