@@ -12,6 +12,15 @@ type PostgresGormAdapter struct {
 	initialDB *gorm.DB
 }
 
+func (a *PostgresGormAdapter) Find(dest interface{}) error {
+	if err := a.db.Find(dest).Error; err != nil {
+		config.Error(err)
+		return err
+	}
+	a.resetDB() // Reset the DB instance after the operation
+	return nil
+}
+
 func (a *PostgresGormAdapter) UpdateColumn(data interface{}) error {
 	if err := a.db.Updates(data).Error; err != nil {
 		config.Error(err)

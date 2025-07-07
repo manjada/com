@@ -20,6 +20,11 @@ type PostgresNativeAdapter struct {
 	tableName string
 }
 
+func (a *PostgresNativeAdapter) Find(dest interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (a *PostgresNativeAdapter) Update(data interface{}) error {
 	//TODO implement me
 	panic("implement me")

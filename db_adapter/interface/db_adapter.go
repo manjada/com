@@ -11,4 +11,5 @@ type DBAdapter interface {
 	Limit(limit int) DBAdapter
 	Update(data interface{}) error
 	UpdateColumn(data interface{}) error
+	Find(dest interface{}) error
 }
