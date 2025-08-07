@@ -103,13 +103,17 @@ func RefreshToken(refreshToken string) (*dto.TokenDetails, error) {
 	}
 }
 
-func DeleteAuth(givenUuid string) error {
+func DeleteAuth(userId string) error {
 	var err error
 	redis, err := memory.NewRedisWrap()
 	if err != nil {
 		return err
 	}
-	err = redis.Delete(context.Background(), givenUuid)
+	err = redis.Delete(context.Background(), fmt.Sprintf("%s_init_%s", auth_memory, userId))
+	if err != nil {
+		return err
+	}
+	err = redis.Delete(context.Background(), fmt.Sprintf("%s_refresh_%s", auth_memory, userId))
 	if err != nil {
 		return err
 	}
