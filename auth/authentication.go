@@ -17,7 +17,7 @@ import (
 
 const (
 	CSRF_KEY    = "csrf_token"
-	auth_memory = "auth_" // This is a placeholder, replace with actual memory package import if needed
+	auth_memory = "auth" // This is a placeholder, replace with actual memory package import if needed
 )
 
 func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
