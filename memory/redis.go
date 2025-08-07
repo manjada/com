@@ -3,9 +3,10 @@ package memory
 import (
 	"context"
 	"errors"
+	"time"
+
 	config2 "github.com/manjada/com/config"
 	"github.com/redis/go-redis/v9"
-	"time"
 )
 
 var redisClient *redis.Client
@@ -82,11 +83,11 @@ func (r RedisWrap) GetString(ctx context.Context, key string) string {
 }
 
 func (r RedisWrap) GetBoolean(ctx context.Context, key string) (bool, error) {
-	val, err := redisClient.Get(ctx, key).Result()
+	val, err := redisClient.Get(ctx, key).Bool()
 	if err != nil {
 		return false, err
 	}
-	return val == "true", nil
+	return val, nil
 }
 
 func (r RedisWrap) GetInt(ctx context.Context, key string) (int, error) {

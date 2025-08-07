@@ -16,8 +16,10 @@ import (
 )
 
 const (
-	CSRF_KEY    = "csrf_token"
-	auth_memory = "auth" // This is a placeholder, replace with actual memory package import if needed
+	CSRF_KEY     = "csrf_token"
+	auth_memory  = "auth" // This is a placeholder, replace with actual memory package import if needed
+	init_auth    = "_init_"
+	refresh_auth = "_refresh_"
 )
 
 func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
@@ -109,11 +111,11 @@ func DeleteAuth(userId string) error {
 	if err != nil {
 		return err
 	}
-	err = redis.Delete(context.Background(), fmt.Sprintf("%s_init_%s", auth_memory, userId))
+	err = redis.Delete(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, init_auth, userId))
 	if err != nil {
 		return err
 	}
-	err = redis.Delete(context.Background(), fmt.Sprintf("%s_refresh_%s", auth_memory, userId))
+	err = redis.Delete(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, refresh_auth, userId))
 	if err != nil {
 		return err
 	}
@@ -127,12 +129,12 @@ func CreateAuth(userId string, td *dto.TokenDetails) error {
 	redis, err := memory.NewRedisWrap()
 	atTime := at.Sub(now)
 	rtTime := rt.Sub(now)
-	err = redis.Set(context.Background(), fmt.Sprintf("%s_init_%s", auth_memory, userId), true, &atTime)
+	err = redis.Set(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, init_auth, userId), true, &atTime)
 	if err != nil {
 		return err
 	}
 
-	err = redis.Set(context.Background(), fmt.Sprintf("%s_refresh_%s", auth_memory, userId), true, &rtTime)
+	err = redis.Set(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, refresh_auth, userId), true, &rtTime)
 	if err != nil {
 		return err
 	}
@@ -145,7 +147,7 @@ func fetchAuth(userId string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	valid, err := redis.GetBoolean(context.Background(), fmt.Sprintf("%s_init_%s", auth_memory, userId))
+	valid, err := redis.GetBoolean(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, init_auth, userId))
 	if err != nil {
 		return false, err
 	}
@@ -162,7 +164,7 @@ func fetchRefreshAuth(userId string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	valid, err := redis.GetBoolean(context.Background(), fmt.Sprintf("%s_refresh_%s", auth_memory, userId))
+	valid, err := redis.GetBoolean(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, refresh_auth, userId))
 	if err != nil {
 		return false, err
 	}
