@@ -152,10 +152,7 @@ func fetchAuth(userId string) (bool, error) {
 		return false, err
 	}
 
-	if !valid {
-		return false, nil
-	}
-	return true, nil
+	return valid, nil
 }
 
 func fetchRefreshAuth(userId string) (bool, error) {
@@ -169,10 +166,7 @@ func fetchRefreshAuth(userId string) (bool, error) {
 		return false, err
 	}
 
-	if !valid {
-		return false, nil
-	}
-	return true, nil
+	return valid, nil
 }
 
 func verifyToken(r *http.Request) (*jwt.Token, error) {
@@ -220,7 +214,7 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 		if err != nil {
 			return nil, err
 		}
-		if exist {
+		if !exist {
 			return nil, dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
 		}
 		return accessDetail, nil
