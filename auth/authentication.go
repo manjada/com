@@ -3,15 +3,16 @@ package auth
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/manjada/com/config"
 	"github.com/manjada/com/dto"
 	"github.com/manjada/com/memory"
-	"net/http"
-	"strings"
-	"time"
 )
 
 const (
@@ -26,7 +27,6 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 
 	atClaims := &dto.CustomClaims{}
 	atClaims.Authorized = true
-	atClaims.AccessUuid = td.AccessUuid
 	atClaims.UserId = user.Id
 	atClaims.Name = user.Name
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
@@ -39,7 +39,6 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	}
 
 	rtClaims := dto.CustomClaims{}
-	rtClaims.RefreshUuid = td.RefreshUuid
 	rtClaims.UserId = user.Id
 	rtClaims.Name = user.Name
 	rtClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.RefreshExpire}
@@ -67,7 +66,6 @@ func RefreshToken(refreshToken string) (*dto.TokenDetails, error) {
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
-		refreshUuid, ok := claims["refresh_uuid"].(string)
 		if !ok {
 			return nil, err
 		}
@@ -75,19 +73,16 @@ func RefreshToken(refreshToken string) (*dto.TokenDetails, error) {
 		if !ok {
 			return nil, err
 		}
-		accessDetail := &dto.AccessDetail{
-			AccessUuid: refreshUuid,
-		}
-		userIdAuth, err := fetchRefreshAuth(accessDetail)
+		exist, err := fetchRefreshAuth(userId)
 		if err != nil {
 			return nil, err
 		}
-		if userIdAuth != userId {
+		if !exist {
 			return nil, dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
 		}
 
 		//Delete the previous Refresh Token
-		delErr := DeleteAuth(refreshUuid)
+		delErr := DeleteAuth(userId)
 		if delErr != nil { //if any goes wrong
 			return nil, delErr
 		}
@@ -128,38 +123,50 @@ func CreateAuth(userId string, td *dto.TokenDetails) error {
 	redis, err := memory.NewRedisWrap()
 	atTime := at.Sub(now)
 	rtTime := rt.Sub(now)
-	err = redis.Set(context.Background(), fmt.Sprintf("%s_init_%s", auth_memory, td.AccessUuid), userId, &atTime)
+	err = redis.Set(context.Background(), fmt.Sprintf("%s_init_%s", auth_memory, userId), true, &atTime)
 	if err != nil {
 		return err
 	}
 
-	err = redis.Set(context.Background(), fmt.Sprintf("%s_refresh_%s", auth_memory, td.RefreshUuid), userId, &rtTime)
+	err = redis.Set(context.Background(), fmt.Sprintf("%s_refresh_%s", auth_memory, userId), true, &rtTime)
 	if err != nil {
 		return err
 	}
 	return err
 }
 
-func fetchAuth(authD *dto.AccessDetail) (string, error) {
+func fetchAuth(userId string) (bool, error) {
 	var err error
 	redis, err := memory.NewRedisWrap()
 	if err != nil {
-		return "", err
+		return false, err
 	}
-	userId := redis.GetString(context.Background(), fmt.Sprintf("%s_init_%s", auth_memory, authD.AccessUuid))
+	valid, err := redis.GetBoolean(context.Background(), fmt.Sprintf("%s_init_%s", auth_memory, userId))
+	if err != nil {
+		return false, err
+	}
 
-	return userId, nil
+	if !valid {
+		return false, nil
+	}
+	return true, nil
 }
 
-func fetchRefreshAuth(authD *dto.AccessDetail) (string, error) {
+func fetchRefreshAuth(userId string) (bool, error) {
 	var err error
 	redis, err := memory.NewRedisWrap()
 	if err != nil {
-		return "", err
+		return false, err
 	}
-	userId := redis.GetString(context.Background(), fmt.Sprintf("%s_refresh_%s", auth_memory, authD.AccessUuid))
+	valid, err := redis.GetBoolean(context.Background(), fmt.Sprintf("%s_refresh_%s", auth_memory, userId))
+	if err != nil {
+		return false, err
+	}
 
-	return userId, nil
+	if !valid {
+		return false, nil
+	}
+	return true, nil
 }
 
 func verifyToken(r *http.Request) (*jwt.Token, error) {
@@ -198,17 +205,16 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
 		accessDetail := &dto.AccessDetail{
-			AccessUuid: claims["access_uuid"].(string),
-			UserId:     claims["user_id"].(string),
+			UserId: claims["user_id"].(string),
 			//Roles:      claims["roles"].(string),
 			Name:      claims["name"].(string),
 			IpAddress: getIpAddress(r),
 		}
-		exist, err := fetchAuth(accessDetail)
+		exist, err := fetchAuth(accessDetail.UserId)
 		if err != nil {
 			return nil, err
 		}
-		if exist != accessDetail.UserId {
+		if exist {
 			return nil, dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
 		}
 		return accessDetail, nil

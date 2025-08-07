@@ -1,10 +1,10 @@
 package dto
 
 import (
-	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
-	"github.com/manjada/com/config"
 	"time"
+
+	"github.com/golang-jwt/jwt"
+	"github.com/manjada/com/config"
 )
 
 type UserToken struct {
@@ -15,18 +15,14 @@ type UserToken struct {
 type TokenDetails struct {
 	AccessToken   string `json:"access_token"`
 	RefreshToken  string `json:"refresh_token"`
-	AccessUuid    string `json:"access_uuid"`
-	RefreshUuid   string `json:"refresh_uuid"`
 	AccessExpire  int64  `json:"access_expire"`
 	RefreshExpire int64  `json:"refresh_expire"`
 }
 
 type CustomClaims struct {
-	Authorized  bool   `json:"authorized"`
-	AccessUuid  string `json:"access_uuid"`
-	RefreshUuid string `json:"refresh_uuid"`
-	UserId      string `json:"user_id"`
-	Name        string `json:"name"`
+	Authorized bool   `json:"authorized"`
+	UserId     string `json:"user_id"`
+	Name       string `json:"name"`
 	jwt.StandardClaims
 }
 
@@ -34,15 +30,12 @@ func (receiver *TokenDetails) CreateTokenDetails() {
 	tokenExpire := time.Duration(config.GetConfig().AppJwt.TokenExpire) * time.Minute
 	tokenRefreshExpire := time.Duration(config.GetConfig().AppJwt.TokenRefreshExpire) * time.Minute
 	receiver.AccessExpire = time.Now().Add(tokenExpire).Unix()
-	receiver.AccessUuid = uuid.New().String()
 	receiver.RefreshExpire = time.Now().Add(tokenRefreshExpire).Unix()
-	receiver.RefreshUuid = uuid.New().String()
 }
 
 type AccessDetail struct {
-	AccessUuid string
-	UserId     string
-	Roles      string
-	IpAddress  string
-	Name       string
+	UserId    string
+	Roles     string
+	IpAddress string
+	Name      string
 }
