@@ -2,10 +2,11 @@ package repo
 
 import (
 	"errors"
-	"github.com/oklog/ulid"
-	"gorm.io/gorm"
 	"math/rand"
 	"time"
+
+	"github.com/oklog/ulid"
+	"gorm.io/gorm"
 )
 
 var excludeTable = []string{"module_menus", "roles", "approvals", "approval_details", "approval_transactions", "approval_transaction_details"}
@@ -15,6 +16,8 @@ type TransactionModel struct {
 	CreatedAt time.Time      `gorm:"index"`
 	UpdatedAt time.Time      `gorm:"index"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
+	CreatedBy string         `gorm:"type:varchar(255);index"`
+	UpdatedBy string         `gorm:"type:varchar(255);"`
 }
 
 func (receive *TransactionModel) BeforeUpdate(tx *gorm.DB) error {
