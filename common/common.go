@@ -3,15 +3,16 @@ package common
 import (
 	"crypto/rand"
 	"fmt"
+	"time"
+
 	"github.com/jinzhu/copier"
 	"github.com/manjada/com/config"
 	"github.com/manjada/com/dto"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 )
 
-func Copier(to interface{}, source interface{}) {
-	copier.CopyWithOption(&to, &source, copyOption())
+func Copier(to interface{}, source interface{}) error {
+	return copier.CopyWithOption(&to, &source, copyOption())
 }
 
 func copyOption() copier.Option {
