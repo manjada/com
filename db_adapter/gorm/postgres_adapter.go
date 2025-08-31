@@ -12,7 +12,7 @@ type PostgresGormAdapter struct {
 	initialDB *gorm.DB
 }
 
-func (a *PostgresGormAdapter) Offset(offset int) error {
+func (a *PostgresGormAdapter) Offset(offset int) _interface.DBAdapter {
 	newAdapter := *a // copy struct
 	newAdapter.db = a.db.Offset(offset)
 	return &newAdapter
