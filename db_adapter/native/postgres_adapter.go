@@ -3,14 +3,15 @@ package native
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
-	_interface "github.com/manjada/com/db_adapter/interface"
-	"github.com/oklog/ulid"
-	"gorm.io/gorm"
 	"math/rand"
 	"reflect"
 	"strings"
 	"time"
+
+	_ "github.com/lib/pq"
+	_interface "github.com/manjada/com/db_adapter/interface"
+	"github.com/oklog/ulid"
+	"gorm.io/gorm"
 )
 
 type PostgresNativeAdapter struct {
@@ -18,6 +19,11 @@ type PostgresNativeAdapter struct {
 	query     string
 	args      []interface{}
 	tableName string
+}
+
+func (a *PostgresNativeAdapter) Offset(offset int) error {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (a *PostgresNativeAdapter) Find(dest interface{}) error {

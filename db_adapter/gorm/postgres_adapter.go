@@ -12,6 +12,12 @@ type PostgresGormAdapter struct {
 	initialDB *gorm.DB
 }
 
+func (a *PostgresGormAdapter) Offset(offset int) error {
+	newAdapter := *a // copy struct
+	newAdapter.db = a.db.Offset(offset)
+	return &newAdapter
+}
+
 func (a *PostgresGormAdapter) Find(dest interface{}) error {
 	if err := a.db.Find(dest).Error; err != nil {
 		config.Error(err)
