@@ -12,5 +12,5 @@ type DBAdapter interface {
 	Update(data interface{}) error
 	UpdateColumn(data interface{}) error
 	Find(dest interface{}) error
-	Offset(offset int) error
+	Offset(offset int) DBAdapter
 }

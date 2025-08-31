@@ -21,7 +21,7 @@ type PostgresNativeAdapter struct {
 	tableName string
 }
 
-func (a *PostgresNativeAdapter) Offset(offset int) error {
+func (a *PostgresNativeAdapter) Offset(offset int) _interface.DBAdapter {
 	//TODO implement me
 	panic("implement me")
 }
