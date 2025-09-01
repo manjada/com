@@ -63,6 +63,14 @@ func (a *PostgresNativeAdapter) Model(data interface{}) _interface.DBAdapter {
 	return nil
 }
 
+func (a *PostgresNativeAdapter) Delete(value interface{}, conds ...interface{}) error {
+	return nil
+}
+
+func (a *PostgresNativeAdapter) Remove(value interface{}, conds ...interface{}) error {
+	return nil
+}
+
 func (a *PostgresNativeAdapter) Table(tableName string) _interface.DBAdapter {
 	newAdapter := *a // copy struct
 	newAdapter.tableName = tableName

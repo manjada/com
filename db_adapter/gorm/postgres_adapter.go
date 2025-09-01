@@ -36,8 +36,7 @@ func (a *PostgresGormAdapter) UpdateColumn(data interface{}) error {
 }
 
 func (a *PostgresGormAdapter) Update(data interface{}) error {
-	if err := a.db.Save(data).Error; err != nil {
-		config.Error(err)
+	if err := a.db.Updates(data).Error; err != nil {
 		return err
 	}
 	return nil
@@ -122,4 +121,18 @@ func (a *PostgresGormAdapter) Model(data interface{}) _interface.DBAdapter {
 	newAdapter := *a
 	newAdapter.db = a.db.Model(data)
 	return &newAdapter
+}
+
+func (a *PostgresGormAdapter) Delete(value interface{}, conds ...interface{}) error {
+	if err := a.db.Delete(value, conds).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a *PostgresGormAdapter) Remove(value interface{}, conds ...interface{}) error {
+	if err := a.db.Unscoped().Delete(value, conds).Error; err != nil {
+		return err
+	}
+	return nil
 }

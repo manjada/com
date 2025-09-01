@@ -16,4 +16,6 @@ type DBAdapter interface {
 	Join(query string, args ...interface{}) DBAdapter
 	Preload(query string, args ...interface{}) DBAdapter
 	Model(data interface{}) DBAdapter
+	Delete(value interface{}, conds ...interface{}) error
+	Remove(value interface{}, conds ...interface{}) error
 }
