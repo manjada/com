@@ -105,3 +105,15 @@ func (a *PostgresGormAdapter) Order(order string) _interface.DBAdapter {
 func (a *PostgresGormAdapter) Count(count *int64) error {
 	return a.db.Count(count).Error
 }
+
+func (a *PostgresGormAdapter) Join(query string, args ...interface{}) _interface.DBAdapter {
+	newAdapter := *a
+	newAdapter.db = a.db.Joins(query, args)
+	return &newAdapter
+}
+
+func (a *PostgresGormAdapter) Preload(query string, args ...interface{}) _interface.DBAdapter {
+	newAdapter := *a
+	newAdapter.db = a.db.Preload(query, args)
+	return &newAdapter
+}

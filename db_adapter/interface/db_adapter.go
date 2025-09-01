@@ -13,4 +13,6 @@ type DBAdapter interface {
 	UpdateColumn(data interface{}) error
 	Find(dest interface{}) error
 	Offset(offset int) DBAdapter
+	Join(query string, args ...interface{}) DBAdapter
+	Preload(query string, args ...interface{}) DBAdapter
 }
