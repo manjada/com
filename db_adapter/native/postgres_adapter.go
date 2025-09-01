@@ -21,6 +21,16 @@ type PostgresNativeAdapter struct {
 	tableName string
 }
 
+func (a *PostgresNativeAdapter) Join(query string, args ...interface{}) _interface.DBAdapter {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (a *PostgresNativeAdapter) Preload(query string, args ...interface{}) _interface.DBAdapter {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (a *PostgresNativeAdapter) Offset(offset int) _interface.DBAdapter {
 	//TODO implement me
 	panic("implement me")
