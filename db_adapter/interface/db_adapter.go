@@ -15,4 +15,5 @@ type DBAdapter interface {
 	Offset(offset int) DBAdapter
 	Join(query string, args ...interface{}) DBAdapter
 	Preload(query string, args ...interface{}) DBAdapter
+	Model(data interface{}) DBAdapter
 }

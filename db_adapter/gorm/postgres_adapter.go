@@ -117,3 +117,9 @@ func (a *PostgresGormAdapter) Preload(query string, args ...interface{}) _interf
 	newAdapter.db = a.db.Preload(query, args)
 	return &newAdapter
 }
+
+func (a *PostgresGormAdapter) Model(data interface{}) _interface.DBAdapter {
+	newAdapter := *a
+	newAdapter.db = a.db.Model(data)
+	return &newAdapter
+}
