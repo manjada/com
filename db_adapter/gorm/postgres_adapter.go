@@ -36,9 +36,25 @@ func (a *PostgresGormAdapter) Select(query string, args ...interface{}) _interfa
 }
 
 func (a *PostgresGormAdapter) Raw(query string, values ...interface{}) _interface.DBAdapter {
-	newAdapter := *a                         // copy struct
-	normValues := normalizeValues(values...) // normalize dengan reflect
-	newAdapter.db = a.db.Raw(query, normValues)
+	newAdapter := *a
+
+	// Flatten nested slices
+	flat := make([]interface{}, 0, len(values))
+	for _, v := range values {
+		rv := reflect.ValueOf(v)
+		if rv.IsValid() && rv.Kind() == reflect.Slice {
+			for i := 0; i < rv.Len(); i++ {
+				flat = append(flat, rv.Index(i).Interface())
+			}
+		} else {
+			flat = append(flat, v)
+		}
+	}
+
+	// Normalize (struct, map, dll)
+	normValues := normalizeValues(flat...)
+
+	newAdapter.db = a.db.Raw(query, normValues...)
 	return &newAdapter
 }
 
