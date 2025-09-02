@@ -1,6 +1,8 @@
 package gorm
 
 import (
+	"reflect"
+
 	"github.com/manjada/com/config"
 	_interface "github.com/manjada/com/db_adapter/interface"
 	"gorm.io/driver/postgres"
@@ -34,9 +36,43 @@ func (a *PostgresGormAdapter) Select(query string, args ...interface{}) _interfa
 }
 
 func (a *PostgresGormAdapter) Raw(query string, values ...interface{}) _interface.DBAdapter {
-	newAdapter := *a // copy struct
-	newAdapter.db = a.db.Raw(query, values)
+	newAdapter := *a                         // copy struct
+	normValues := normalizeValues(values...) // normalize dengan reflect
+	newAdapter.db = a.db.Raw(query, normValues)
 	return &newAdapter
+}
+
+func normalizeValues(values ...interface{}) []interface{} {
+	norm := make([]interface{}, 0, len(values))
+
+	for _, v := range values {
+		rv := reflect.ValueOf(v)
+
+		// Kalau nil langsung append nil
+		if !rv.IsValid() {
+			norm = append(norm, nil)
+			continue
+		}
+
+		switch rv.Kind() {
+		case reflect.Struct:
+			// biarkan struct, masukkan langsung
+			norm = append(norm, v)
+
+		case reflect.Map, reflect.Slice, reflect.Array, reflect.String,
+			reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+			reflect.Float32, reflect.Float64, reflect.Bool:
+			// ini semua cukup dimasukkan langsung
+			norm = append(norm, v)
+
+		default:
+			// fallback: cast ke interface{}
+			norm = append(norm, v)
+		}
+	}
+
+	return norm
 }
 
 func (a *PostgresGormAdapter) Offset(offset int) _interface.DBAdapter {
