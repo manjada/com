@@ -18,4 +18,6 @@ type DBAdapter interface {
 	Model(data interface{}) DBAdapter
 	Delete(value interface{}, conds ...interface{}) error
 	Remove(value interface{}, conds ...interface{}) error
+	Raw(query string, values ...interface{}) DBAdapter
+	Select(query string, args ...interface{}) DBAdapter
 }

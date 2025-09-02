@@ -12,6 +12,18 @@ type PostgresGormAdapter struct {
 	initialDB *gorm.DB
 }
 
+func (a *PostgresGormAdapter) Select(query string, args ...interface{}) _interface.DBAdapter {
+	newAdapter := *a // copy struct
+	newAdapter.db = a.db.Select(query, args)
+	return &newAdapter
+}
+
+func (a *PostgresGormAdapter) Raw(query string, values ...interface{}) _interface.DBAdapter {
+	newAdapter := *a // copy struct
+	newAdapter.db = a.db.Raw(query, values)
+	return &newAdapter
+}
+
 func (a *PostgresGormAdapter) Offset(offset int) _interface.DBAdapter {
 	newAdapter := *a // copy struct
 	newAdapter.db = a.db.Offset(offset)
