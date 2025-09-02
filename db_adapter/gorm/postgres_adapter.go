@@ -12,6 +12,21 @@ type PostgresGormAdapter struct {
 	initialDB *gorm.DB
 }
 
+func (a *PostgresGormAdapter) Group(query string) _interface.DBAdapter {
+	newAdapter := *a // copy struct
+	newAdapter.db = a.db.Group(query)
+	return &newAdapter
+}
+
+func (a *PostgresGormAdapter) Scan(data interface{}) error {
+	if err := a.db.Scan(data).Error; err != nil {
+		config.Error(err)
+		return err
+	}
+	a.resetDB() // Reset the DB instance after the operation
+	return nil
+}
+
 func (a *PostgresGormAdapter) Select(query string, args ...interface{}) _interface.DBAdapter {
 	newAdapter := *a // copy struct
 	newAdapter.db = a.db.Select(query, args)

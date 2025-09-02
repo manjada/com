@@ -21,6 +21,14 @@ type PostgresNativeAdapter struct {
 	tableName string
 }
 
+func (a *PostgresNativeAdapter) Group(query string) _interface.DBAdapter {
+	return nil
+}
+
+func (a *PostgresNativeAdapter) Scan(data interface{}) error {
+	return nil
+}
+
 func (a *PostgresNativeAdapter) Select(query string, args ...interface{}) _interface.DBAdapter {
 	return nil
 }

@@ -20,4 +20,6 @@ type DBAdapter interface {
 	Remove(value interface{}, conds ...interface{}) error
 	Raw(query string, values ...interface{}) DBAdapter
 	Select(query string, args ...interface{}) DBAdapter
+	Group(query string) DBAdapter
+	Scan(data interface{}) error
 }
