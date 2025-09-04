@@ -1,10 +1,6 @@
 package repo
 
-import (
-	"github.com/manjada/com/config"
-	"github.com/manjada/com/db"
-	"github.com/manjada/com/db/repo"
-)
+import ()
 
 type EmailTemplate struct {
 	TransactionModel
@@ -21,16 +17,15 @@ func (EmailTemplate) TableName() string {
 }
 
 type EmailTemplateRepo struct {
-	Db repo.BaseRepoGorm
 }
 
 func (e EmailTemplateRepo) GetEmailTemplateByKeyAndClientId(templateKey string, clientId string) *EmailTemplate {
 	//TODO implement me
 	var emailTemplate EmailTemplate
-	if err := e.Db.Where(`template_key = ? and client_id = ?`, templateKey, clientId).First(&emailTemplate).DbRepo.Error; err != nil {
+	/*if err := e.Db.Where(`template_key = ? and client_id = ?`, templateKey, clientId).First(&emailTemplate).DbRepo.Error; err != nil {
 		config.Error(err)
 		return nil
-	}
+	}*/
 	return &emailTemplate
 }
 
@@ -38,6 +33,6 @@ type EmailTemplateRepoInterface interface {
 	GetEmailTemplateByKeyAndClientId(templateKey string, clientId string) *EmailTemplate
 }
 
-func NewEmailTemplateRepo(Db db.DBConnector) EmailTemplateRepoInterface {
-	return EmailTemplateRepo{Db: repo.NewBaseRepo(Db)}
-}
+/*func NewEmailTemplateRepo(Db db_adapter.DBConnector) EmailTemplateRepoInterface {
+	return nil
+}*/

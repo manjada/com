@@ -16,8 +16,10 @@ var (
 
 type Config struct {
 	AppJwt struct {
-		AccessSecret  string `mapstructure:"access_secret"`
-		RefreshSecret string `mapstructure:"refresh_secret"`
+		AccessSecret       string `mapstructure:"access_secret"`
+		RefreshSecret      string `mapstructure:"refresh_secret"`
+		TokenExpire        int    `mapstructure:"token_expire"`
+		TokenRefreshExpire int    `mapstructure:"token_refresh_expire"`
 	} `mapstructure:"app_secret"`
 
 	FatSecret struct {
@@ -27,10 +29,8 @@ type Config struct {
 	} `mapstructure:"fatsecret"`
 
 	AppHost struct {
-		Host               string `mapstructure:"host"`
-		Port               int    `mapstructure:"port"`
-		TokenExpire        int    `mapstructure:"token_expire"`
-		TokenRefreshExpire int    `mapstructure:"token_refresh_expire"`
+		Host string `mapstructure:"host"`
+		Port int    `mapstructure:"port"`
 	} `mapstructure:"app_host"`
 
 	DbConfig struct {
@@ -42,6 +42,7 @@ type Config struct {
 		Timezone string `mapstructure:"timezone"`
 		Debug    bool   `mapstructure:"debug"`
 		Type     string `mapstructure:"type"`
+		Orm      string `mapstructure:"orm"`
 	} `mapstructure:"db_config"`
 
 	NoSqlConfig struct {
@@ -79,6 +80,10 @@ type Config struct {
 		User string `mapstructure:"user"`
 		Pass string `mapstructure:"pass"`
 	} `mapstructure:"message"`
+
+	Util struct {
+		OtpDuration int `mapstructure:"otp_duration"`
+	} `mapstructure:"util"`
 }
 
 func init() {

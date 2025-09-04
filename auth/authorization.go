@@ -4,15 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/manjada/com/db"
-	"github.com/manjada/com/db/repo"
 	"github.com/manjada/com/memory"
 	"github.com/manjada/com/web"
 	"strings"
 )
 
 type AuthHandler struct {
-	DB     db.DBConnector
 	Action string
 }
 
@@ -27,9 +24,6 @@ func (a *AuthHandler) Handle(c web.Context) error {
 		return err
 	}
 	// if tenant, no need to check permission
-	if tokenData.IsTenant {
-		return nil
-	}
 	roles := strings.Split(tokenData.Roles, ",")
 	path := c.Request().URL.Path
 	// get moduleCode
@@ -68,11 +62,11 @@ func (a *AuthHandler) Handle(c web.Context) error {
 }
 
 func (a *AuthHandler) validationPermission(roles []string, action string, moduleCode string) error {
-
-	var moduleMenuId string
+	return nil
+	/*var moduleMenuId string
 	queryModule := `
-		SELECT id as module_menu_id 
-		FROM module_menus 
+		SELECT id as module_menu_id
+		FROM module_menus
 		WHERE menu_code = ? and deleted_at IS NULL
 	`
 
@@ -89,8 +83,8 @@ func (a *AuthHandler) validationPermission(roles []string, action string, module
 		IsApproval bool
 	}
 	query := `
-		SELECT * 
-		FROM role_permissions 
+		SELECT *
+		FROM role_permissions
 		WHERE role_id IN (?) and module_menu_id = ? and deleted_at IS NULL
 	`
 
@@ -124,7 +118,7 @@ func (a *AuthHandler) validationPermission(roles []string, action string, module
 		default:
 			return errors.New("action not found")
 		}
-	}
+	}*/
 
 	return errors.New("permission denied")
 }

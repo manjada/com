@@ -25,6 +25,7 @@ var ERR_DATA_NOT_FOUND = ErrCodeUser(1008, "Error Data Not Found")
 var ERR_DATA_EXISTS = ErrCodeUser(1009, "Data Exists")
 var ERR_TOKEN_EXPIRED = ErrCodeUser(1010, "Invalid or expired token")
 var ERR_UNAUTHORIZED = ErrCodeUser(1011, "Unauthorized access")
+var MAX_RETRY_OTP = ErrCodeUser(1012, "Maximum OTP attempts exceeded, please try again later")
 
 type ErrorCustom struct {
 	CodeError int
@@ -55,6 +56,13 @@ func (o *SystemError) InvalidResponse(c web.Context) error {
 
 func (o *ErrorCustom) InvalidResponse(c web.Context) error {
 	if o != nil {
+		if o.CodeError == 1010 { //token expired
+			return c.JSON(http.StatusUnauthorized, Response{
+				Status:    http.StatusUnauthorized,
+				ErrorCode: o.Code(),
+				Message:   o.Error(),
+			})
+		}
 		return c.JSON(http.StatusBadRequest, Response{
 			Status:    http.StatusBadRequest,
 			ErrorCode: o.Code(),

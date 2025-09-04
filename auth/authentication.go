@@ -3,19 +3,23 @@ package auth
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/manjada/com/config"
 	"github.com/manjada/com/dto"
 	"github.com/manjada/com/memory"
-	"net/http"
-	"strings"
-	"time"
 )
 
 const (
-	CSRF_KEY = "csrf_token"
+	CSRF_KEY     = "csrf_token"
+	auth_memory  = "auth" // This is a placeholder, replace with actual memory package import if needed
+	init_auth    = "_init_"
+	refresh_auth = "_refresh_"
 )
 
 func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
@@ -25,13 +29,8 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 
 	atClaims := &dto.CustomClaims{}
 	atClaims.Authorized = true
-	atClaims.AccessUuid = td.AccessUuid
 	atClaims.UserId = user.Id
-	atClaims.Roles = user.Roles
-	atClaims.ClientId = user.ClientId
-	atClaims.IsTenant = user.IsTenant
 	atClaims.Name = user.Name
-	atClaims.TenantId = user.TenantId
 	atClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.AccessExpire}
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 
@@ -42,13 +41,8 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	}
 
 	rtClaims := dto.CustomClaims{}
-	rtClaims.RefreshUuid = td.RefreshUuid
 	rtClaims.UserId = user.Id
-	rtClaims.Roles = user.Roles
-	rtClaims.ClientId = user.ClientId
-	rtClaims.IsTenant = user.IsTenant
 	rtClaims.Name = user.Name
-	rtClaims.TenantId = user.TenantId
 	rtClaims.StandardClaims = jwt.StandardClaims{ExpiresAt: td.RefreshExpire}
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, rtClaims)
 
@@ -60,6 +54,73 @@ func CreateToken(user dto.UserToken) (*dto.TokenDetails, error) {
 	return td, nil
 }
 
+func RefreshToken(refreshToken string) (*dto.TokenDetails, error) {
+	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
+		//Make sure that the token method conform to "SigningMethodHMAC"
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(config.GetConfig().AppJwt.RefreshSecret), nil
+	})
+	//if there is an error, the token must have expired
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok && token.Valid {
+		if !ok {
+			return nil, err
+		}
+		userId, ok := claims["user_id"].(string)
+		if !ok {
+			return nil, err
+		}
+		exist, err := fetchRefreshAuth(userId)
+		if err != nil {
+			return nil, err
+		}
+		if !exist {
+			return nil, dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
+		}
+
+		//Delete the previous Refresh Token
+		delErr := DeleteAuth(userId)
+		if delErr != nil { //if any goes wrong
+			return nil, delErr
+		}
+		//Create new pairs of refresh and access tokens
+		ts, createErr := CreateToken(dto.UserToken{Id: userId})
+		if createErr != nil {
+			return nil, createErr
+		}
+		//save the tokens metadata to redis
+		saveErr := CreateAuth(userId, ts)
+		if saveErr != nil {
+			return nil, saveErr
+		}
+
+		return ts, nil
+	} else {
+		return nil, err
+	}
+}
+
+func DeleteAuth(userId string) error {
+	var err error
+	redis, err := memory.NewRedisWrap()
+	if err != nil {
+		return err
+	}
+	err = redis.Delete(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, init_auth, userId))
+	if err != nil {
+		return err
+	}
+	err = redis.Delete(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, refresh_auth, userId))
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func CreateAuth(userId string, td *dto.TokenDetails) error {
 	var err error
 	at := time.Unix(td.AccessExpire, 0)
@@ -68,27 +129,44 @@ func CreateAuth(userId string, td *dto.TokenDetails) error {
 	redis, err := memory.NewRedisWrap()
 	atTime := at.Sub(now)
 	rtTime := rt.Sub(now)
-	err = redis.Set(context.Background(), td.AccessUuid, userId, &atTime)
+	err = redis.Set(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, init_auth, userId), true, &atTime)
 	if err != nil {
 		return err
 	}
 
-	err = redis.Set(context.Background(), td.RefreshUuid, userId, &rtTime)
+	err = redis.Set(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, refresh_auth, userId), true, &rtTime)
 	if err != nil {
 		return err
 	}
 	return err
 }
 
-func fetchAuth(authD *dto.AccessDetail) (string, error) {
+func fetchAuth(userId string) (bool, error) {
 	var err error
 	redis, err := memory.NewRedisWrap()
 	if err != nil {
-		return "", err
+		return false, err
 	}
-	userId := redis.GetString(context.Background(), authD.AccessUuid)
+	valid, err := redis.GetBoolean(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, init_auth, userId))
+	if err != nil {
+		return false, err
+	}
 
-	return userId, nil
+	return valid, nil
+}
+
+func fetchRefreshAuth(userId string) (bool, error) {
+	var err error
+	redis, err := memory.NewRedisWrap()
+	if err != nil {
+		return false, err
+	}
+	valid, err := redis.GetBoolean(context.Background(), fmt.Sprintf("%s%s%s", auth_memory, refresh_auth, userId))
+	if err != nil {
+		return false, err
+	}
+
+	return valid, nil
 }
 
 func verifyToken(r *http.Request) (*jwt.Token, error) {
@@ -127,20 +205,16 @@ func ExtractTokenMetadata(r *http.Request) (*dto.AccessDetail, error) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
 		accessDetail := &dto.AccessDetail{
-			AccessUuid: claims["access_uuid"].(string),
-			UserId:     claims["user_id"].(string),
-			Roles:      claims["roles"].(string),
-			IsTenant:   claims["is_tenant"].(bool),
-			Name:       claims["name"].(string),
-			ClientId:   claims["client_id"].(string),
-			TenantId:   claims["tenant_id"].(string),
-			IpAddress:  getIpAddress(r),
+			UserId: claims["user_id"].(string),
+			//Roles:      claims["roles"].(string),
+			Name:      claims["name"].(string),
+			IpAddress: getIpAddress(r),
 		}
-		exist, err := fetchAuth(accessDetail)
+		exist, err := fetchAuth(accessDetail.UserId)
 		if err != nil {
 			return nil, err
 		}
-		if exist != accessDetail.UserId {
+		if !exist {
 			return nil, dto.ErrorUser(dto.ERR_TOKEN_EXPIRED, "")
 		}
 		return accessDetail, nil

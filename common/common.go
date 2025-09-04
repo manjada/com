@@ -3,14 +3,16 @@ package common
 import (
 	"crypto/rand"
 	"fmt"
+	"time"
+
 	"github.com/jinzhu/copier"
 	"github.com/manjada/com/config"
 	"github.com/manjada/com/dto"
-	"time"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func Copier(to interface{}, source interface{}) {
-	copier.CopyWithOption(&to, &source, copyOption())
+func Copier(to interface{}, source interface{}) error {
+	return copier.CopyWithOption(&to, &source, copyOption())
 }
 
 func copyOption() copier.Option {
@@ -95,4 +97,18 @@ func GenerateOTP(length int) (string, error) {
 	}
 	fmt.Println(string(buffer))
 	return string(buffer), nil
+}
+
+// HashOTP securely hashes the OTP using bcrypt.
+func HashOTP(otp string) (string, error) {
+	hashedOtp, err := bcrypt.GenerateFromPassword([]byte(otp), bcrypt.DefaultCost)
+	if err != nil {
+		return "", fmt.Errorf("failed to hash OTP: %v", err)
+	}
+	return string(hashedOtp), nil
+}
+
+// VerifyOTP compares a hashed OTP with a plain OTP.
+func VerifyOTP(hashedOtp, plainOtp string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedOtp), []byte(plainOtp))
 }

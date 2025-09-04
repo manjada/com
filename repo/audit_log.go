@@ -1,9 +1,6 @@
 package repo
 
 import (
-	"encoding/json"
-	"github.com/manjada/com/db"
-	"github.com/manjada/com/db/repo"
 	"github.com/manjada/com/dto"
 )
 
@@ -27,12 +24,11 @@ type AuditLogger interface {
 	LogRejected(auth dto.AccessDetail, module string, detail interface{}) error
 }
 
-func NewAuditLogService(DB db.DBConnector) AuditLogger {
+/*func NewAuditLogService(DB db_adapter.DBConnector) AuditLogger {
 	return &AuditLogService{Db: repo.NewBaseRepo(DB)}
-}
+}*/
 
 type AuditLogService struct {
-	Db repo.BaseRepoGorm
 }
 
 func (a *AuditLogService) LogCreate(auth dto.AccessDetail, module string, detail interface{}) error {
@@ -60,7 +56,8 @@ func (a *AuditLogService) LogRejected(auth dto.AccessDetail, module string, deta
 }
 
 func (a *AuditLogService) log(auth dto.AccessDetail, module, action string, data interface{}) error {
-	detail, err := json.Marshal(data)
+	return nil
+	/*detail, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
@@ -68,10 +65,9 @@ func (a *AuditLogService) log(auth dto.AccessDetail, module, action string, data
 		UserId:    auth.UserId,
 		Name:      auth.Name,
 		IpAddress: auth.IpAddress,
-		ClientId:  auth.ClientId,
 		Module:    module,
 		Action:    action,
 		Detail:    string(detail),
 	}
-	return a.Db.Create(&auditLog).DbRepo.Error
+	return a.Db.Create(&auditLog).DbRepo.Error*/
 }
