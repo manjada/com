@@ -1,6 +1,7 @@
 package gorm
 
 import (
+	"database/sql"
 	"reflect"
 
 	"github.com/manjada/com/config"
@@ -51,9 +52,23 @@ func (a *PostgresGormAdapter) Raw(query string, values ...interface{}) _interfac
 		}
 	}
 
-	// Normalize (struct, map, dll)
-	normValues := normalizeValues(flat...)
+	// Check apakah semua argumen sudah sql.NamedArg
+	allNamed := true
+	for _, v := range flat {
+		if _, ok := v.(sql.NamedArg); !ok {
+			allNamed = false
+			break
+		}
+	}
 
+	if allNamed {
+		// langsung lempar ke gorm tanpa normalize → lebih cepat
+		newAdapter.db = a.db.Raw(query, flat...)
+		return &newAdapter
+	}
+
+	// fallback: normalize (map, struct, primitive)
+	normValues := normalizeValues(flat...)
 	newAdapter.db = a.db.Raw(query, normValues...)
 	return &newAdapter
 }
